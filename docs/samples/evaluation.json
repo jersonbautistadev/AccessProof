@@ -1,0 +1,13 @@
+{
+  "dataset": "synthetic demo only; two defect classes; not a general accuracy benchmark",
+  "vulnerable_permission_cases": 12,
+  "known_unauthorized_access_cases": 4,
+  "detected_unauthorized_access_cases": 4,
+  "missed_known_unauthorized_access_cases": 0,
+  "fixed_valid_permission_cases": 12,
+  "false_positives_in_fixed_matrix": 0,
+  "inconclusive_in_fixed_matrix": 0,
+  "resolved_after_fix": 4,
+  "new_failures_after_reintroduction": 4,
+  "known_miss_outside_this_matrix": "An unconfigured private field can leak without detection; reproduced in tests/test_runner.py."
+}

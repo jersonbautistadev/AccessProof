@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>AccessProof — accessproof-demo</title>
+<style>body{font:16px/1.55 system-ui,sans-serif;margin:0;background:#f3f6fb;color:#17263d}main{max-width:1500px;margin:auto;padding:32px}h1{margin-bottom:4px}p{max-width:1050px}.card{background:white;border:1px solid #c8d3e4;border-radius:12px;padding:20px;margin:20px 0;overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:12px;text-align:left;border-bottom:1px solid #dce3ef;vertical-align:top}th{background:#e8eef8}.failed td:first-child{border-left:5px solid #b32424}.inconclusive td:first-child{border-left:5px solid #9a5b00}.passed td:first-child{border-left:5px solid #147449}.skipped td:first-child{border-left:5px solid #60718a}pre{white-space:pre-wrap;word-break:break-word;font-size:12px}code{word-break:break-all}summary{cursor:pointer}.badge{font-weight:700;font-size:19px}</style></head>
+<body><main><h1>AccessProof</h1><p>Configured authorization regression testing</p>
+<section class="card"><div class="badge">BLOCKED</div>
+<p>passed: 14 · failed: 4 · inconclusive: 0 · skipped: 0</p><p>Suite: accessproof-demo · Policy: 1 · Target: http://127.0.0.1:8765 · GET only</p>
+<p>Generated: 2026-10-29T05:26:26.586991+00:00</p><p>Policy fingerprint: <code>f5c2c7fcc5b6b48a2673ab79134f5c2a4124ad467c704cd8e66d0d6220c4f393</code></p>
+<p>Passing configured checks does not establish that an entire application is secure.</p><p>Only declared identities, resources, and assertions were tested. Evidence excludes response bodies, header values, tokens, and expected content values. All times are UTC.</p></section>
+<section class="card"><h2>Regression comparison: not_requested</h2><pre>{
+  &quot;status&quot;: &quot;not_requested&quot;,
+  &quot;newly_failing&quot;: [],
+  &quot;newly_inconclusive&quot;: [],
+  &quot;resolved&quot;: [],
+  &quot;added&quot;: [],
+  &quot;removed&quot;: []
+}</pre></section>
+<section class="card"><h2>Results</h2><table><thead><tr><th>Check</th><th>Identity</th><th>Resource</th><th>Expected</th><th>Observed</th><th>Gate</th><th>Evidence</th></tr></thead><tbody><tr class="passed"><td>identity:admin</td><td>admin</td><td>—</td><td>verified identity</td><td>passed — identity_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 37,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;identity_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/subject&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/role&quot;,
+      &quot;matched&quot;: true
+    }
+  ]
+}</pre></details></td></tr><tr class="passed"><td>identity:alice</td><td>alice</td><td>—</td><td>verified identity</td><td>passed — identity_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 36,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;identity_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/subject&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/role&quot;,
+      &quot;matched&quot;: true
+    }
+  ]
+}</pre></details></td></tr><tr class="passed"><td>identity:bob</td><td>bob</td><td>—</td><td>verified identity</td><td>passed — identity_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 34,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;identity_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/subject&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/role&quot;,
+      &quot;matched&quot;: true
+    }
+  ]
+}</pre></details></td></tr><tr class="passed"><td>control:admin-audit</td><td>admin</td><td>admin-audit</td><td>known legitimate access</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 78,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/entries&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>control:alice-record</td><td>alice</td><td>alice-record</td><td>known legitimate access</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 88,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>control:bob-record</td><td>bob</td><td>bob-record</td><td>known legitimate access</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 82,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>permission:admin-audit:admin</td><td>admin</td><td>admin-audit</td><td>allow</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 78,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/entries&quot;
+  ]
+}</pre></details></td></tr><tr class="failed"><td>permission:admin-audit:alice</td><td>alice</td><td>admin-audit</td><td>deny</td><td>failed — protected_fields_exposed</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 78,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/entries&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>permission:admin-audit:anonymous</td><td>anonymous</td><td>admin-audit</td><td>deny</td><td>passed — expected_denial_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 401,
+  &quot;body_bytes&quot;: 26,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;protected_fields_present&quot;: []
+}</pre></details></td></tr><tr class="failed"><td>permission:admin-audit:bob</td><td>bob</td><td>admin-audit</td><td>deny</td><td>failed — protected_fields_exposed</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 78,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/entries&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>permission:alice-record:admin</td><td>admin</td><td>alice-record</td><td>allow</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 88,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>permission:alice-record:alice</td><td>alice</td><td>alice-record</td><td>allow</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 88,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>permission:alice-record:anonymous</td><td>anonymous</td><td>alice-record</td><td>deny</td><td>passed — expected_denial_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 401,
+  &quot;body_bytes&quot;: 26,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;protected_fields_present&quot;: []
+}</pre></details></td></tr><tr class="failed"><td>permission:alice-record:bob</td><td>bob</td><td>alice-record</td><td>deny</td><td>failed — protected_fields_exposed</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 88,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>permission:bob-record:admin</td><td>admin</td><td>bob-record</td><td>allow</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 82,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr><tr class="failed"><td>permission:bob-record:alice</td><td>alice</td><td>bob-record</td><td>deny</td><td>failed — protected_fields_exposed</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 82,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr><tr class="passed"><td>permission:bob-record:anonymous</td><td>anonymous</td><td>bob-record</td><td>deny</td><td>passed — expected_denial_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 401,
+  &quot;body_bytes&quot;: 26,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;protected_fields_present&quot;: []
+}</pre></details></td></tr><tr class="passed"><td>permission:bob-record:bob</td><td>bob</td><td>bob-record</td><td>allow</td><td>passed — expected_access_verified</td><td>required</td><td><details><summary>Sanitized evidence</summary><pre>{
+  &quot;http_status&quot;: 200,
+  &quot;body_bytes&quot;: 82,
+  &quot;json_object&quot;: true,
+  &quot;transport_error&quot;: null,
+  &quot;allow_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/id&quot;,
+      &quot;matched&quot;: true
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/owner&quot;,
+      &quot;matched&quot;: true
+    }
+  ],
+  &quot;deny_assertions&quot;: [
+    {
+      &quot;kind&quot;: &quot;status&quot;,
+      &quot;matched&quot;: false
+    },
+    {
+      &quot;kind&quot;: &quot;json_equals&quot;,
+      &quot;pointer&quot;: &quot;/error&quot;,
+      &quot;matched&quot;: false
+    }
+  ],
+  &quot;protected_fields_present&quot;: [
+    &quot;/private_note&quot;
+  ]
+}</pre></details></td></tr></tbody></table></section>
+</main></body></html>

@@ -1,0 +1,786 @@
+{
+  "report_version": 1,
+  "tool_version": "0.1.0",
+  "evaluator_version": 1,
+  "created_at": "2026-10-29T05:26:26.586991+00:00",
+  "suite_id": "accessproof-demo",
+  "policy_version": "1",
+  "policy_fingerprint": "f5c2c7fcc5b6b48a2673ab79134f5c2a4124ad467c704cd8e66d0d6220c4f393",
+  "target": "http://127.0.0.1:8765",
+  "scope": {
+    "method": "GET",
+    "configured_resources": 3,
+    "configured_identities": 4,
+    "permission_checks": 12
+  },
+  "summary": {
+    "passed": 14,
+    "failed": 4
+  },
+  "results": [
+    {
+      "id": "identity:admin",
+      "kind": "identity",
+      "identity": "admin",
+      "resource": null,
+      "expected": "verified identity",
+      "status": "passed",
+      "reason": "identity_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 37,
+        "json_object": true,
+        "transport_error": null,
+        "identity_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/subject",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/role",
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "identity:alice",
+      "kind": "identity",
+      "identity": "alice",
+      "resource": null,
+      "expected": "verified identity",
+      "status": "passed",
+      "reason": "identity_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 36,
+        "json_object": true,
+        "transport_error": null,
+        "identity_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/subject",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/role",
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "identity:bob",
+      "kind": "identity",
+      "identity": "bob",
+      "resource": null,
+      "expected": "verified identity",
+      "status": "passed",
+      "reason": "identity_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 34,
+        "json_object": true,
+        "transport_error": null,
+        "identity_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/subject",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/role",
+            "matched": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "control:admin-audit",
+      "kind": "control",
+      "identity": "admin",
+      "resource": "admin-audit",
+      "expected": "known legitimate access",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 78,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/entries"
+        ]
+      }
+    },
+    {
+      "id": "control:alice-record",
+      "kind": "control",
+      "identity": "alice",
+      "resource": "alice-record",
+      "expected": "known legitimate access",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 88,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    },
+    {
+      "id": "control:bob-record",
+      "kind": "control",
+      "identity": "bob",
+      "resource": "bob-record",
+      "expected": "known legitimate access",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 82,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    },
+    {
+      "id": "permission:admin-audit:admin",
+      "kind": "permission",
+      "identity": "admin",
+      "resource": "admin-audit",
+      "expected": "allow",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 78,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/entries"
+        ]
+      }
+    },
+    {
+      "id": "permission:admin-audit:alice",
+      "kind": "permission",
+      "identity": "alice",
+      "resource": "admin-audit",
+      "expected": "deny",
+      "status": "failed",
+      "reason": "protected_fields_exposed",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 78,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/entries"
+        ]
+      }
+    },
+    {
+      "id": "permission:admin-audit:anonymous",
+      "kind": "permission",
+      "identity": "anonymous",
+      "resource": "admin-audit",
+      "expected": "deny",
+      "status": "passed",
+      "reason": "expected_denial_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 401,
+        "body_bytes": 26,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": false
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": true
+          }
+        ],
+        "protected_fields_present": []
+      }
+    },
+    {
+      "id": "permission:admin-audit:bob",
+      "kind": "permission",
+      "identity": "bob",
+      "resource": "admin-audit",
+      "expected": "deny",
+      "status": "failed",
+      "reason": "protected_fields_exposed",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 78,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/entries"
+        ]
+      }
+    },
+    {
+      "id": "permission:alice-record:admin",
+      "kind": "permission",
+      "identity": "admin",
+      "resource": "alice-record",
+      "expected": "allow",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 88,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    },
+    {
+      "id": "permission:alice-record:alice",
+      "kind": "permission",
+      "identity": "alice",
+      "resource": "alice-record",
+      "expected": "allow",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 88,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    },
+    {
+      "id": "permission:alice-record:anonymous",
+      "kind": "permission",
+      "identity": "anonymous",
+      "resource": "alice-record",
+      "expected": "deny",
+      "status": "passed",
+      "reason": "expected_denial_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 401,
+        "body_bytes": 26,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": false
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": true
+          }
+        ],
+        "protected_fields_present": []
+      }
+    },
+    {
+      "id": "permission:alice-record:bob",
+      "kind": "permission",
+      "identity": "bob",
+      "resource": "alice-record",
+      "expected": "deny",
+      "status": "failed",
+      "reason": "protected_fields_exposed",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 88,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    },
+    {
+      "id": "permission:bob-record:admin",
+      "kind": "permission",
+      "identity": "admin",
+      "resource": "bob-record",
+      "expected": "allow",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 82,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    },
+    {
+      "id": "permission:bob-record:alice",
+      "kind": "permission",
+      "identity": "alice",
+      "resource": "bob-record",
+      "expected": "deny",
+      "status": "failed",
+      "reason": "protected_fields_exposed",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 82,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    },
+    {
+      "id": "permission:bob-record:anonymous",
+      "kind": "permission",
+      "identity": "anonymous",
+      "resource": "bob-record",
+      "expected": "deny",
+      "status": "passed",
+      "reason": "expected_denial_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 401,
+        "body_bytes": 26,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": false
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": true
+          }
+        ],
+        "protected_fields_present": []
+      }
+    },
+    {
+      "id": "permission:bob-record:bob",
+      "kind": "permission",
+      "identity": "bob",
+      "resource": "bob-record",
+      "expected": "allow",
+      "status": "passed",
+      "reason": "expected_access_verified",
+      "required": true,
+      "evidence": {
+        "http_status": 200,
+        "body_bytes": 82,
+        "json_object": true,
+        "transport_error": null,
+        "allow_assertions": [
+          {
+            "kind": "status",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/id",
+            "matched": true
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/owner",
+            "matched": true
+          }
+        ],
+        "deny_assertions": [
+          {
+            "kind": "status",
+            "matched": false
+          },
+          {
+            "kind": "json_equals",
+            "pointer": "/error",
+            "matched": false
+          }
+        ],
+        "protected_fields_present": [
+          "/private_note"
+        ]
+      }
+    }
+  ],
+  "comparison": {
+    "status": "not_requested",
+    "newly_failing": [],
+    "newly_inconclusive": [],
+    "resolved": [],
+    "added": [],
+    "removed": []
+  },
+  "limitation": "Passing configured checks does not establish that an entire application is secure."
+}

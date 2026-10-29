@@ -1,0 +1,58 @@
+# All values describe synthetic fixtures. Never put credentials in this file.
+schema_version = 1
+suite_id = "accessproof-demo"
+policy_version = "1"
+
+[target]
+base_url = "http://127.0.0.1:8765"
+environment = "development"
+timeout_seconds = 3
+max_response_bytes = 65536
+
+[identities.alice]
+token_env = "ACCESSPROOF_ALICE_TOKEN"
+verify_path = "/me"
+verify = { statuses = [200], json_equals = { "/subject" = "alice", "/role" = "user" } }
+
+[identities.bob]
+token_env = "ACCESSPROOF_BOB_TOKEN"
+verify_path = "/me"
+verify = { statuses = [200], json_equals = { "/subject" = "bob", "/role" = "user" } }
+
+[identities.admin]
+token_env = "ACCESSPROOF_ADMIN_TOKEN"
+verify_path = "/me"
+verify = { statuses = [200], json_equals = { "/subject" = "admin", "/role" = "admin" } }
+
+[identities.anonymous]
+anonymous = true
+
+[[resources]]
+id = "alice-record"
+path = "/records/record-alice"
+owner = "alice"
+positive_identity = "alice"
+protected_paths = ["/private_note"]
+allow = { statuses = [200], json_equals = { "/id" = "record-alice", "/owner" = "alice" } }
+deny = { statuses = [401, 403], json_equals = { "/error" = "access_denied" } }
+permissions = { alice = "allow", bob = "deny", admin = "allow", anonymous = "deny" }
+
+[[resources]]
+id = "bob-record"
+path = "/records/record-bob"
+owner = "bob"
+positive_identity = "bob"
+protected_paths = ["/private_note"]
+allow = { statuses = [200], json_equals = { "/id" = "record-bob", "/owner" = "bob" } }
+deny = { statuses = [401, 403], json_equals = { "/error" = "access_denied" } }
+permissions = { alice = "deny", bob = "allow", admin = "allow", anonymous = "deny" }
+
+[[resources]]
+id = "admin-audit"
+path = "/admin/audit"
+owner = "admin"
+positive_identity = "admin"
+protected_paths = ["/entries"]
+allow = { statuses = [200], json_equals = { "/id" = "audit" } }
+deny = { statuses = [401, 403], json_equals = { "/error" = "access_denied" } }
+permissions = { alice = "deny", bob = "deny", admin = "allow", anonymous = "deny" }
