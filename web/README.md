@@ -1,12 +1,14 @@
 # AccessProof report viewer
 
+**Live:** https://accessproof-iota.vercel.app
+
 A static, client-side viewer for AccessProof's `report.json`. It draws the permission matrix as an access plan: each resource is a room, each identity a keycard, and each permission check a door that is locked, opened, or breached by the wrong keycard. **Show details**, or a click on any door, opens a console-style panel with the evidence, the changes since the baseline, and a filterable list of every check.
 
 ![The viewer showing four breached doors and the details of one breach](../docs/images/viewer-regression.png)
 
 ## Run it
 
-Requires Node.js 24 or newer (CI uses the version in `.nvmrc`).
+Requires Node.js 24 to 26. CI and Vercel both build with Node 24, the version in `.nvmrc`.
 
 ```sh
 cd web

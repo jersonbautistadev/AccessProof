@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": ">=24 <27"
   },
   "scripts": {
     "gen:validator": "node scripts/build-validator.mjs",

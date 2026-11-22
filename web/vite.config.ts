@@ -1,7 +1,7 @@
 /// <reference types="vitest/config" />
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
-import { CONTENT_SECURITY_POLICY } from "./src/security";
+import { CONTENT_SECURITY_POLICY } from "./src/security.ts";
 
 // The viewer renders untrusted report files, so the built page allows only its own
 // scripts, styles, and fonts, and cannot make network requests or submit forms.
