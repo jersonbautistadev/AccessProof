@@ -4,7 +4,9 @@ All notable changes to AccessProof are recorded here. The format follows [Keep a
 
 ## [Unreleased]
 
-The report format gains one additive field (`gate`), so `report_version` stays `1`. The CLI options, policy schema, and exit codes are unchanged.
+## [0.2.0] - 2026-11-22
+
+A stable, documented `report.json` contract and a browser-based report viewer, plus stronger tests and CI. The report format gains one additive field (`gate`), so `report_version` stays `1`. The CLI options, policy schema, and exit codes are unchanged.
 
 ### Added
 - Report viewer in `web/`: a static, client-side React and TypeScript app that shows a report as an access plan (resources as rooms, identities as keycards, checks as doors) with a console-style details panel for evidence, baseline changes, and a filterable check list. It validates every file against the report schema, runs under a strict Content Security Policy with no network access, and ships with 27 tests and its own CI job.
@@ -23,11 +25,16 @@ The report format gains one additive field (`gate`), so `report_version` stays `
 - Code formatted with `ruff format`. Lint fixes only, with no behavior change.
 - The walkthrough keeps each stage's `terminal.txt` even when the stage misbehaves, and names the failing stage.
 - `docs/validation.md` and the README now reflect hosted CI runs, Windows, and Python 3.11–3.15.
+- Dependabot proposes only releases at least 14 days old (`cooldown`) for GitHub Actions, CI tools, and the viewer.
+
+### Fixed
+- The hash-pinned CI tool lock lists `typing-extensions` directly. A regenerated lock had dropped it, which broke `jsonschema` on Python 3.12.
 
 ## [0.1.0] - 2026-10-29
 
 ### Added
 - Initial release: strict TOML policy validation and fingerprinting, loopback-only GET transport, identity and positive-control prerequisites, permission-matrix evaluation, sanitized JSON/HTML/terminal reports, policy-aware baseline comparison, a synthetic demo with vulnerable and fixed modes, the walkthrough and CI helpers, and the GitHub Actions workflow.
 
-[Unreleased]: https://github.com/jersonbautistadev/AccessProof/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/jersonbautistadev/AccessProof/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jersonbautistadev/AccessProof/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jersonbautistadev/AccessProof/releases/tag/v0.1.0
