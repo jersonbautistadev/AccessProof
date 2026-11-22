@@ -7,6 +7,7 @@ All notable changes to AccessProof are recorded here. The format follows [Keep a
 The report format gains one additive field (`gate`), so `report_version` stays `1`. The CLI options, policy schema, and exit codes are unchanged.
 
 ### Added
+- Report viewer in `web/`: a static, client-side React and TypeScript app that shows a report as an access plan (resources as rooms, identities as keycards, checks as doors) with a console-style details panel for evidence, baseline changes, and a filterable check list. It validates every file against the report schema, runs under a strict Content Security Policy with no network access, and ships with 25 tests and its own CI job.
 - `report.json` records the gate verdict: `gate.status` (`passed` or `blocked`), `gate.reasons`, and `gate.blocking_checks`. It is the same decision that sets the exit code, so readers no longer re-derive it.
 - A strict JSON Schema for `report.json` (`schema/report.schema.json`) that doubles as a disclosure allowlist, and `docs/report-format.md` with field meanings, all 30 reason codes, and compatibility rules. Contract tests validate generated reports and the published samples against it, and fail if a reason code is undocumented.
 - MIT license, declared in `pyproject.toml`.

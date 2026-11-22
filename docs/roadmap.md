@@ -39,7 +39,7 @@ Items are prioritized with MoSCoW and ordered by value against effort. Effort is
 
 ## Won't (for now)
 
-Dashboards, automatic endpoint discovery, AI features, database storage, and non-JSON APIs. Each one widens the scope beyond "check a reviewed permission matrix", and none of them is needed for that job.
+Dashboards, automatic endpoint discovery, AI features, database storage, and non-JSON APIs. (The `web/` report viewer is not a dashboard: it opens one report file at a time in the browser, stores nothing, and needs no server.) Each one widens the scope beyond "check a reviewed permission matrix", and none of them is needed for that job.
 
 ## Cross-cutting for every item
 

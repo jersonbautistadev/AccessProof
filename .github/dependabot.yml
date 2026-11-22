@@ -9,3 +9,11 @@ updates:
     directory: /ci
     schedule:
       interval: monthly
+  # Report viewer (web/). Grouped so routine updates arrive as one pull request.
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: monthly
+    groups:
+      viewer:
+        patterns: ["*"]

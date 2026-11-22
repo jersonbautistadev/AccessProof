@@ -25,6 +25,7 @@ flowchart TD
 | `__main__.py` | CLI parsing, sequencing, exit codes | CI uses the same behavior as a developer's terminal |
 | `demo.py` | Local synthetic server and two explicit authorization modes | Provide known ground truth without scanning another service |
 | `scripts/` | Reproduce demo lifecycle, CLI invocation, evaluation, and CI | Keep expected demonstration failures separate from the gate's exit code |
+| `web/` | Static report viewer (React and TypeScript) that reads `report.json` in the browser | Consumes only the documented report contract and displays the recorded gate instead of re-deriving it |
 
 ## Why a dependency-free first version?
 

@@ -40,6 +40,18 @@ python -m scripts.ci_demo --mode vulnerable
 
 The second command must exit `1`. The vulnerable server binds only to `127.0.0.1` and stops when the helper finishes. Do not deploy the intentionally vulnerable demo.
 
+## Report viewer
+
+[web/](web/README.md) contains a static, client-side viewer for `report.json`. It draws the permission matrix as an access plan, with each check as a door that is locked, opened, or breached by the wrong keycard, and opens a console-style panel with the evidence for any door.
+
+![The report viewer showing four breached doors and the evidence for one of them](docs/images/viewer-regression.png)
+
+```sh
+cd web && npm ci && npm run dev
+```
+
+Reports never leave the browser. The built page runs under a strict Content Security Policy with no network access, and every file is validated against the report schema before it is shown.
+
 ## Run the CLI and demo separately
 
 Set these **public synthetic fixture values** in both terminals. Real credentials belong in environment variables, not configuration, source control, or command-line arguments.
