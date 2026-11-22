@@ -1,9 +1,9 @@
 """Detect, correct, rerun, and reintroduce two known authorization defects."""
 
 import json
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 from .demo_support import demo_environment, local_demo
 
@@ -19,9 +19,11 @@ def stage(mode, name, expected_exit, baseline=None):
     print(completed.stdout, end="", flush=True)
     if completed.stderr:
         print(completed.stderr, end="", file=sys.stderr)
+    # Keep the terminal output even when the stage misbehaves; it is the first thing to inspect.
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "terminal.txt").write_text(completed.stdout + completed.stderr, encoding="utf-8")
     if completed.returncode != expected_exit:
-        raise RuntimeError("walkthrough did not produce its expected CLI result")
-    (directory / "terminal.txt").write_text(completed.stdout, encoding="utf-8")
+        raise RuntimeError(f"{name} stage exited {completed.returncode}, expected {expected_exit}")
     return json.loads((directory / "report.json").read_text(encoding="utf-8"))
 
 
@@ -30,8 +32,12 @@ def main():
         vulnerable = stage("vulnerable", "vulnerable", 1)
         fixed = stage("fixed", "fixed", 0, Path("reports/walkthrough/vulnerable/report.json"))
         regression = stage("vulnerable", "regression", 1, Path("reports/walkthrough/fixed/report.json"))
-        expected_bugs = {"permission:alice-record:bob", "permission:bob-record:alice",
-                         "permission:admin-audit:alice", "permission:admin-audit:bob"}
+        expected_bugs = {
+            "permission:alice-record:bob",
+            "permission:bob-record:alice",
+            "permission:admin-audit:alice",
+            "permission:admin-audit:bob",
+        }
         detected = {row["id"] for row in vulnerable["results"] if row["status"] == "failed"}
         valid_rows = [row for row in fixed["results"] if row["kind"] == "permission"]
         if detected != expected_bugs or any(row["status"] != "passed" for row in valid_rows):
@@ -53,10 +59,19 @@ def main():
         }
         destination = Path("reports/walkthrough/evaluation.json")
         destination.write_text(json.dumps(evaluation, indent=2) + "\n", encoding="utf-8")
-        print("\nWalkthrough verified. Open reports/walkthrough/regression/report.html to inspect newly failing permissions.")
+        print(
+            "\nWalkthrough verified. Open reports/walkthrough/regression/report.html to inspect newly failing permissions."
+        )
         return 0
-    except (OSError, ValueError, RuntimeError):
-        print("Walkthrough could not complete; inspect the visible results and ensure local port 8765 is free", file=sys.stderr)
+    except RuntimeError as exc:
+        # These messages are the walkthrough's own constants and stage names, never response data.
+        print(f"Walkthrough failed: {exc}. See reports/walkthrough/*/terminal.txt", file=sys.stderr)
+        return 2
+    except (OSError, ValueError):
+        print(
+            "Walkthrough could not complete; inspect the visible results and ensure local port 8765 is free",
+            file=sys.stderr,
+        )
         return 2
 
 

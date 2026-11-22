@@ -31,15 +31,38 @@ class ConfigurationTests(unittest.TestCase):
                 self.assertNotEqual(original, parse_policy(raw).fingerprint)
 
     def test_rejects_nonlocal_or_ambiguous_targets(self):
-        for url in ("https://example.com", "http://10.0.0.1", "http://localhost:8765", "http://127.0.0.1@evil.example",
-                    "http://token@127.0.0.1", "ftp://127.0.0.1", "http://127.0.0.1/path", "http://127.0.0.1?secret=x",
-                    "http://127.0.0.1:0", "http://127.0.0.1:70000", "http://[::1%25eth0]", "http://127.0.0.1/#"):
+        for url in (
+            "https://example.com",
+            "http://10.0.0.1",
+            "http://localhost:8765",
+            "http://127.0.0.1@evil.example",
+            "http://token@127.0.0.1",
+            "ftp://127.0.0.1",
+            "http://127.0.0.1/path",
+            "http://127.0.0.1?secret=x",
+            "http://127.0.0.1:0",
+            "http://127.0.0.1:70000",
+            "http://[::1%25eth0]",
+            "http://127.0.0.1/#",
+        ):
             with self.subTest(url=url), self.assertRaises(ConfigError):
                 target({"base_url": url, "environment": "development"})
-        self.assertEqual(target({"base_url": "https://[::1]:1234/", "environment": "test"}).address, ("::1", 1234, "https"))
+        self.assertEqual(
+            target({"base_url": "https://[::1]:1234/", "environment": "test"}).address, ("::1", 1234, "https")
+        )
 
     def test_rejects_redirect_style_paths_and_query_secrets(self):
-        for endpoint in ("https://evil.example", "//127.0.0.1/", "/../admin", "/a/./b", "/a%2fb", "/a?token=x", "/a#b", "/a\\b", "/a\r\nX-Test:x"):
+        for endpoint in (
+            "https://evil.example",
+            "//127.0.0.1/",
+            "/../admin",
+            "/a/./b",
+            "/a%2fb",
+            "/a?token=x",
+            "/a#b",
+            "/a\\b",
+            "/a\r\nX-Test:x",
+        ):
             with self.subTest(endpoint=endpoint), self.assertRaises(ConfigError):
                 path(endpoint)
 
@@ -71,6 +94,25 @@ class ConfigurationTests(unittest.TestCase):
                 with self.assertRaises(ConfigError) as captured:
                     parse_policy(raw)
                 self.assertNotIn("SHOULD_NOT_ECHO_THIS_VALUE", str(captured.exception))
+
+    def test_skip_entries_are_validated(self):
+        valid = copy.deepcopy(self.raw)
+        resource = valid["resources"][0]
+        resource["permissions"].pop("anonymous")
+        resource["skip"] = {"anonymous": "anonymous fixture not provisioned yet"}
+        parsed = next(item for item in parse_policy(valid).resources if item.id == resource["id"])
+        self.assertEqual(parsed.skip, {"anonymous": "anonymous fixture not provisioned yet"})
+        self.assertNotIn("anonymous", parsed.permissions)
+        for skip in ({"anonymous": ""}, {"anonymous": "bad\nreason"}, {"anonymous": 5}, {"unknown": "reason"}):
+            with self.subTest(skip=skip):
+                raw = copy.deepcopy(valid)
+                raw["resources"][0]["skip"] = skip
+                with self.assertRaises(ConfigError):
+                    parse_policy(raw)
+        conflicting = copy.deepcopy(valid)
+        conflicting["resources"][0]["permissions"]["anonymous"] = "deny"
+        with self.assertRaises(ConfigError):
+            parse_policy(conflicting)
 
     def test_missing_config_is_actionable(self):
         with self.assertRaises(ConfigError):

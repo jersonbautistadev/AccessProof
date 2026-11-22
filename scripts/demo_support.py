@@ -1,12 +1,16 @@
 """Public synthetic credentials and a server context for local demonstrations."""
 
-from contextlib import contextmanager
 import os
 import threading
+from contextlib import contextmanager
 
 from accessproof.demo import TOKEN_VARIABLES, make_server
 
-PUBLIC_DEMO_TOKENS = {"alice": "demo-alice-token-0001", "bob": "demo-bob-token-000002", "admin": "demo-admin-token-0003"}
+PUBLIC_DEMO_TOKENS = {
+    "alice": "demo-alice-token-0001",
+    "bob": "demo-bob-token-000002",
+    "admin": "demo-admin-token-0003",
+}
 
 
 def demo_environment():

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from . import __version__
 from .config import ConfigError, load_policy
@@ -15,7 +15,9 @@ from .runner import gate_failed, run
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Configured, GET-only authorization regression checks on loopback development targets.")
+    parser = argparse.ArgumentParser(
+        description="Configured, GET-only authorization regression checks on loopback development targets."
+    )
     parser.add_argument("--version", action="version", version=f"AccessProof {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
     run_parser = commands.add_parser("run", help="Run configured checks and write sanitized JSON/HTML reports")
@@ -53,7 +55,10 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     except OSError:
         # Do not print filesystem, network, or credential-bearing exception details.
-        print("AccessProof operational error: cannot bind the local demo or write output; check the port and file permissions", file=sys.stderr)
+        print(
+            "AccessProof operational error: cannot bind the local demo or write output; check the port and file permissions",
+            file=sys.stderr,
+        )
         return 2
     except KeyboardInterrupt:
         print("AccessProof interrupted: run incomplete", file=sys.stderr)

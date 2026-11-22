@@ -1,7 +1,7 @@
+import threading
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
-import threading
 
 from accessproof.config import load_policy
 from accessproof.demo import AUDIT, RECORDS, TOKEN_VARIABLES, make_server
@@ -26,7 +26,9 @@ def running_demo(mode="fixed"):
     thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.02}, daemon=True)
     thread.start()
     configured = policy()
-    configured = replace(configured, target=replace(configured.target, base_url=f"http://127.0.0.1:{server.server_port}"))
+    configured = replace(
+        configured, target=replace(configured.target, base_url=f"http://127.0.0.1:{server.server_port}")
+    )
     try:
         yield configured
     finally:
@@ -37,6 +39,7 @@ def running_demo(mode="fixed"):
 
 class FixtureTransport:
     """Fixed application oracle plus explicitly injected faults; no evaluation logic."""
+
     def __init__(self, override=None):
         self.override = override
         self.calls = []
@@ -57,4 +60,8 @@ class FixtureTransport:
         record = RECORDS.get(path.removeprefix("/records/"))
         if record is None:
             return observed(404, {"error": "not_found"})
-        return observed(200, record) if subject in (record["owner"], "admin") else observed(403, {"error": "access_denied"})
+        return (
+            observed(200, record)
+            if subject in (record["owner"], "admin")
+            else observed(403, {"error": "access_denied"})
+        )

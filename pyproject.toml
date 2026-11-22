@@ -7,6 +7,9 @@ name = "accessproof"
 version = "0.1.0"
 description = "Configured authorization regression checks for local development and CI"
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
 dependencies = []
 
 [project.scripts]
@@ -14,3 +17,24 @@ accessproof = "accessproof.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["accessproof*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "RUF"]
+# The formatter owns line length; long string literals (HTML template, messages) stay intact.
+# En dashes in user-facing ranges such as "1–30" are intentional.
+ignore = ["E501", "RUF001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["accessproof", "scripts", "tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["accessproof"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import http.client
 import json
-import socket
 import ssl
 import time
 from dataclasses import asdict, dataclass
 
-from .config import Target, path, target as validate_target
+from .config import Target, path
+from .config import target as validate_target
 
 
 @dataclass(frozen=True)
@@ -22,8 +22,12 @@ class Observation:
 
     def evidence(self) -> dict:
         # Deliberately exclude response values, headers, and exception messages.
-        return {"http_status": self.status, "body_bytes": self.body_bytes,
-                "json_object": self.is_json, "transport_error": self.error}
+        return {
+            "http_status": self.status,
+            "body_bytes": self.body_bytes,
+            "json_object": self.is_json,
+            "transport_error": self.error,
+        }
 
 
 def unique_keys(pairs: list[tuple[str, object]]) -> dict:
@@ -75,7 +79,9 @@ class GetTransport:
             if response.length is not None and response.length > 0:
                 return Observation(status=status, error="truncated_response", body_bytes=len(data))
             media_type = response.getheader("Content-Type", "").split(";", 1)[0].strip().lower()
-            if media_type != "application/json" and not (media_type.startswith("application/") and media_type.endswith("+json")):
+            if media_type != "application/json" and not (
+                media_type.startswith("application/") and media_type.endswith("+json")
+            ):
                 return Observation(status=status, error="non_json_response", body_bytes=len(data))
             try:
                 body = json.loads(data, object_pairs_hook=unique_keys, parse_constant=reject_constant)
@@ -84,7 +90,7 @@ class GetTransport:
             if not isinstance(body, dict):
                 return Observation(status=status, error="json_object_required", body_bytes=len(data))
             return Observation(status, body, body_bytes=len(data), is_json=True)
-        except (TimeoutError, socket.timeout):
+        except TimeoutError:
             return Observation(status=status, error="network_timeout", body_bytes=len(data))
         except ssl.SSLError:
             return Observation(status=status, error="tls_error", body_bytes=len(data))
