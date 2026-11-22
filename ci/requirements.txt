@@ -124,11 +124,11 @@ coverage==7.17.4 \
     --hash=sha256:f18308e805bb72ad54c0f59553072fa62242ecac4b7bab5894433be273a6fb99 \
     --hash=sha256:f4a24adfff26121274362da90f88402fd335629f39cfe4066a58ba4cab075583 \
     --hash=sha256:fce18eccf5dd137290341d64bbfdb8002db2c76f6c69f3e38fc1391dbb6b975d
-    # via -r ci/requirements.in
-jsonschema==4.25.1 \
-    --hash=sha256:3fba0169e345c7175110351d456342c364814cfcf3b964ba4587f22915230a63 \
-    --hash=sha256:e4a9655ce0da0c0b67a085847e00a3a51449e1157f4f75e9fb5aa545e122eb85
-    # via -r ci/requirements.in
+    # via -r requirements.in
+jsonschema==4.26.0 \
+    --hash=sha256:0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326 \
+    --hash=sha256:d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce
+    # via -r requirements.in
 jsonschema-specifications==2025.9.1 \
     --hash=sha256:98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe \
     --hash=sha256:b540987f239e745613c7a9176f3edb72b832a4ac465cf02712288397832b5e8d
@@ -290,8 +290,4 @@ ruff==0.17.6 \
     --hash=sha256:d8b14e1473dc86ab9069cf7a2ba5041dc012f59110201844ed04cfddf07055a0 \
     --hash=sha256:fb589e032806bb942e4fb526f30b80a1a64112147ed9f1d38cc3de2e255b6f45 \
     --hash=sha256:fd661702202a89c00a4c9d0339008805fa5876bfa1c57e165495c2e62230dfbf
-    # via -r ci/requirements.in
-typing-extensions==4.16.0 ; python_full_version < '3.13' \
-    --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8 \
-    --hash=sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5
-    # via referencing
+    # via -r requirements.in
