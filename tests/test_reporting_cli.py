@@ -150,6 +150,9 @@ class CliTests(unittest.TestCase):
                 for token in TOKENS.values():
                     self.assertNotIn(token, output)
                 self.assertTrue((Path(directory) / "reports/report.html").exists())
+                written = json.loads((Path(directory) / "reports/report.json").read_text(encoding="utf-8"))
+                # The exit code and the recorded gate verdict must never disagree.
+                self.assertEqual(written["gate"]["status"], "passed" if expected == 0 else "blocked")
 
     def test_cli_missing_credentials_exit_one_with_report(self):
         with tempfile.TemporaryDirectory() as directory:

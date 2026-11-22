@@ -11,7 +11,7 @@ from . import __version__
 from .config import ConfigError, load_policy
 from .demo import serve
 from .reporting import compare, load_baseline, sanitize, terminal, write_reports
-from .runner import gate_failed, run
+from .runner import run
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
         report = run(policy, environment=environment)
         if baseline is not None:
             compare(report, baseline)
-        blocked = gate_failed(report)
+        blocked = report["gate"]["status"] == "blocked"
         secrets = [environment.get(identity.token_env, "") for identity in policy.identities if identity.token_env]
         report = sanitize(report, secrets)
         write_reports(report, arguments.out)

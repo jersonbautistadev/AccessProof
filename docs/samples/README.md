@@ -11,4 +11,4 @@ These files are generated from an actual local execution of `python -m scripts.w
 
 Open HTML locally in a browser. GitHub source viewing does not execute HTML as a report. Use your own generated reports as baselines for actual work; samples document the demonstration.
 
-The evidence excludes raw response values and credentials. Check counts include three identity checks, three resource positive controls, and twelve permission checks. The valid matrix is small; passing it does not establish application-wide security.
+Each report records its gate verdict in `gate` and conforms to [schema/report.schema.json](../../schema/report.schema.json); see [docs/report-format.md](../report-format.md). The evidence excludes raw response values and credentials. Check counts include three identity checks, three resource positive controls, and twelve permission checks. The valid matrix is small; passing it does not establish application-wide security.

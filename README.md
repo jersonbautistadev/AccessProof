@@ -40,6 +40,18 @@ python -m scripts.ci_demo --mode vulnerable
 
 The second command must exit `1`. The vulnerable server binds only to `127.0.0.1` and stops when the helper finishes. Do not deploy the intentionally vulnerable demo.
 
+## Report viewer
+
+[web/](web/README.md) contains a static, client-side viewer for `report.json`, deployed at **https://accessproof-iota.vercel.app**. It draws the permission matrix as an access plan, with each check as a door that is locked, opened, or breached by the wrong keycard, and opens a console-style panel with the evidence for any door.
+
+![The report viewer showing four breached doors and the evidence for one of them](docs/images/viewer-regression.png)
+
+```sh
+cd web && npm ci && npm run dev
+```
+
+Reports never leave the browser. The built page runs under a strict Content Security Policy with no network access, and every file is validated against the report schema before it is shown.
+
 ## Run the CLI and demo separately
 
 Set these **public synthetic fixture values** in both terminals. Real credentials belong in environment variables, not configuration, source control, or command-line arguments.
@@ -135,6 +147,8 @@ Every check is required by default. A required failed, inconclusive, **or skippe
 [configs/demo.toml](configs/demo.toml) is the complete example. [docs/configuration.md](docs/configuration.md) explains every field and adapting it to another local API.
 
 Reports contain stable check IDs, identity/resource labels, expected permission, observed outcome, HTTP status, body length, assertion-match booleans, and the names of exposed protected fields. They exclude response values, headers, credentials, tokens, raw exception messages, and expected assertion values. Responses are inspected only in memory. Exact configured credential values are redacted from user-supplied report metadata as an additional layer; HTML text is escaped and scripts are disabled. Use synthetic labels and fixtures because report metadata itself can reveal internal structure.
+
+`report.json` is a stable, versioned contract with a recorded gate verdict. [docs/report-format.md](docs/report-format.md) explains every field and reason code and the compatibility rules, and [schema/report.schema.json](schema/report.schema.json) is the JSON Schema the test suite enforces.
 
 The runner permits only literal loopback IP targets explicitly labeled `development` or `test`. It ignores proxy environment variables, refuses redirects, uses a fresh HTTP connection for every request, accepts no cookie sessions, validates TLS certificates for HTTPS, limits response size, and uses timeouts. A timeout is a socket inactivity limit plus a deadline checked between body reads, not an exact total wall-clock guarantee. GET-only does not make an application endpoint harmless: configure read-only endpoints in a disposable development environment.
 
