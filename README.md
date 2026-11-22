@@ -1,8 +1,26 @@
 # AccessProof
 
+[![AccessProof CI](https://github.com/jersonbautistadev/AccessProof/actions/workflows/accessproof.yml/badge.svg?branch=main)](https://github.com/jersonbautistadev/AccessProof/actions/workflows/accessproof.yml)
+
 **A small authorization regression tester for development and CI.** Developers supply a reviewed permission matrix, named test identities, and known sample resources. AccessProof compares expected permissions with observed JSON responses and explains failures without saving response bodies.
 
+**Live report viewer:** https://accessproof-iota.vercel.app (open the Regression sample).
+**Latest release:** [0.2.0](https://github.com/jersonbautistadev/AccessProof/releases/tag/v0.2.0).
+
+![The report viewer showing four doors breached by the wrong keycard, with the evidence for one of them](docs/images/viewer-regression.png)
+
 Built as a solo cybersecurity portfolio project by Jerson Angelo Bautista. The focus is application security, backend behavior, automated testing, and a useful CI gate.
+
+## What this project demonstrates
+
+- **Authorization testing that refuses to guess.** Each identity is verified and each resource gets a positive control before any denial is trusted. An authenticated 401, a redirect, or a malformed response is reported as inconclusive, never as a pass.
+- **The two common API authorization bugs.** The bundled demo seeds broken object-level and broken function-level authorization ([OWASP API1 and API5](#technical-references)). All four seeded unauthorized-access cases are caught, and the corrected 12-case matrix produces no false failures. That is a small fixture result, not a general detection rate.
+- **Privacy by construction.** Reports keep allowlisted evidence only: status, byte counts, and which protected fields appeared. They never contain response bodies or tokens. A strict [JSON Schema](schema/report.schema.json) enforces the allowlist in tests.
+- **A CI gate with honest regression tracking.** Policy fingerprints stop unlike runs from being compared. Required failures, inconclusive results, and skipped checks all block merging through branch protection.
+- **A locked-down front end.** The React and TypeScript viewer validates every file against the schema and runs under a strict Content Security Policy: no inline scripts, no `eval`, no network access.
+- **Evidence over claims.** 63 Python tests at 97% branch coverage, 27 viewer tests, deliberate-bug checks on key tests, a documented false negative, and a [validation record](docs/validation.md) of what has and hasn't been verified.
+
+The [case study](docs/case-study.md) explains the design decisions and trade-offs.
 
 **Passing configured checks does not establish that an entire application is secure.** AccessProof tests only the declared identities, resources, and assertions. It does not discover endpoints or replace a security review.
 
@@ -43,8 +61,6 @@ The second command must exit `1`. The vulnerable server binds only to `127.0.0.1
 ## Report viewer
 
 [web/](web/README.md) contains a static, client-side viewer for `report.json`, deployed at **https://accessproof-iota.vercel.app**. It draws the permission matrix as an access plan, with each check as a door that is locked, opened, or breached by the wrong keycard, and opens a console-style panel with the evidence for any door.
-
-![The report viewer showing four breached doors and the evidence for one of them](docs/images/viewer-regression.png)
 
 ```sh
 cd web && npm ci && npm run dev

@@ -53,11 +53,11 @@ Read `reporting.py`, `__main__.py`, then `.github/workflows/accessproof.yml`. Ru
 
 ## Suggested Git checkpoints
 
-The archive contains no Git history. Initialize a repository locally when you are ready, review `.gitignore`, and use checkpoints such as these for your own changes:
+The repository's history begins with the provided implementation, followed by reviewed pull requests. Use checkpoints such as these for your own changes:
 
 1. Document the permission matrix and run the provided prototype.
 2. Add a new synthetic resource with a test.
 3. Close the demonstrated unconfigured-field gap.
 4. Run and explain the CI workflow on your GitHub repository.
 
-Do not fabricate a development history for the provided implementation. Build a truthful history of your own understanding and improvements. No files have been pushed to your GitHub account by this project setup.
+Do not fabricate a development history for the provided implementation. Build a truthful history of your own understanding and improvements.

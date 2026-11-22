@@ -66,6 +66,6 @@ The protected-path rule flags a field even when its value is null or empty. A co
 - Baselines are unsigned, developer-controlled files. A policy hash establishes configuration equality, not report authenticity or the completeness of testing.
 - A loopback address can be forwarded elsewhere. The runner cannot certify that the selected target contains only synthetic data.
 - The current demo does not reproduce production identity providers, databases, multi-tenant hierarchies, distributed caches, or race conditions.
-- Tests were executed with Python 3.12 on Linux here. Windows command examples and hosted GitHub Actions have not been run in this environment.
+- Tests run on Python 3.11–3.14 on hosted Linux CI and were also run locally on Windows. macOS has not been tested. See [validation.md](validation.md).
 
 Use the project to demonstrate reproducible authorization regression testing and careful handling of uncertainty. Do not present a green report as an application security certificate.

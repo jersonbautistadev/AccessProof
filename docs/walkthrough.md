@@ -1,4 +1,24 @@
-# Five-minute portfolio walkthrough
+# Portfolio walkthroughs
+
+## Two-minute version (live viewer)
+
+Use https://accessproof-iota.vercel.app. Nothing needs to run locally.
+
+**0:00 Problem (20 s).** "The most common serious API bug is a missing ownership or role check: a normal user reads someone else's record or calls an admin endpoint. Normal tests miss it, because the legitimate request still works. AccessProof checks every identity against every resource, using an explicit permission policy, and blocks CI when access doesn't match."
+
+**0:20 The map (30 s).** Open the **Regression** sample. "Each resource is a room, each test identity a keycard, and each check a door. Green doors behaved. These four orange doors opened for the wrong keycard: Alice and Bob reading each other's records, and both reaching the admin audit log. They're marked *new* because they passed against the fixed baseline. The gate is blocked, and that's the same verdict that set the CLI's exit code."
+
+**0:50 The evidence (30 s).** Click the **bob-record / alice** door. "Before trusting any result, AccessProof verified Alice's identity and confirmed Bob can read his own record. Then Alice's request came back 200, 82 bytes, and contained the protected field `/private_note`. The report records *that* the field was present, never its value. Reports are built from an allowlist, and a JSON Schema enforces it."
+
+**1:20 One decision (25 s).** "A 403 doesn't count as a pass unless the prerequisites worked. An expired token or a missing record makes the check *inconclusive*, and inconclusive blocks CI too. A security gate that passes when it can't see is worse than none."
+
+**1:45 Limits and next (15 s).** "It only tests what the policy declares, and there's a test that reproduces a leak it misses on purpose. Next is collection endpoints, where many real leaks appear."
+
+Have a backup ready: a screenshot of the Regression sample with the panel open, `docs/images/viewer-regression.png`, in case the network fails.
+
+---
+
+## Five-minute version (local CLI)
 
 ## 1. State the problem
 
@@ -30,9 +50,9 @@ For a hands-on version, use the two-terminal commands in the README. Stop `--mod
 
 Open `reports/walkthrough/fixed/report.html`. The fingerprint is unchanged because the intended policy did not change. All 12 permission cases and six prerequisites pass. The comparison records four resolved failures.
 
-Open `reports/walkthrough/regression/report.html`. The same two bugs have been deliberately reintroduced. Four rows are marked `NEW FAILURE`. The CLI exits 1. `python -m scripts.ci_demo --mode vulnerable` demonstrates the corresponding blocking local CI command.
+Open `reports/walkthrough/regression/report.html`, or drop `reports/walkthrough/regression/report.json` onto the [report viewer](https://accessproof-iota.vercel.app) for the access-plan view. The same two bugs have been deliberately reintroduced. Four rows are marked `NEW FAILURE`. The CLI exits 1. `python -m scripts.ci_demo --mode vulnerable` demonstrates the corresponding blocking local CI command.
 
-Show `.github/workflows/accessproof.yml`: it runs tests, invokes the CLI against the fixed fixture, and uploads sanitized reports even after failure. A GitHub branch rule must require the workflow check to block merging. A failing check alone does not configure branch protection.
+Show `.github/workflows/accessproof.yml`: it runs tests, invokes the CLI against the fixed fixture, and uploads sanitized reports even after failure. This repository's ruleset requires the workflow's checks before anything merges into `main`. A failing check alone does not configure branch protection, so that ruleset is what makes the gate block.
 
 ## 5. State the limits clearly
 
