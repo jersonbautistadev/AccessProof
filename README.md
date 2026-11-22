@@ -8,7 +8,7 @@ Built as a solo cybersecurity portfolio project by Jerson Angelo Bautista. The f
 
 ## Quick start
 
-Use Python **3.12** (minimum 3.11). There are no third-party runtime or test dependencies. Run commands from this directory after extracting the project. On Windows, use `py -3.12` in place of `python` if needed.
+Use Python **3.11 or newer**. CI tests 3.11 through 3.14, and 3.12 is the reference version. There are no third-party runtime or test dependencies. Run commands from this directory after extracting the project. On Windows, use `py -3.12` in place of `python` if needed.
 
 ```sh
 python --version
@@ -146,7 +146,23 @@ Matching fingerprints and check sets allow comparisons for newly failing, newly 
 
 ## CI integration
 
-The included [.github/workflows/accessproof.yml](.github/workflows/accessproof.yml) runs automated tests, starts the corrected local fixture, invokes the actual CLI, and preserves sanitized reports even when a check fails. It uses read-only repository permissions, pinned action commits, and a job timeout. Dependabot configuration proposes action updates. No deployment, external target, or real secret is needed.
+The included [.github/workflows/accessproof.yml](.github/workflows/accessproof.yml) runs on pushes to `main` and on pull requests. It has three jobs:
+
+| Job | What it checks |
+|---|---|
+| `authorization` | Test suite with a 95% branch-coverage floor, the CLI against the corrected local demo, and the full vulnerable → fixed → regression walkthrough. Sanitized reports are uploaded even when a check fails |
+| `tests (Python 3.11 / 3.13 / 3.14)` | The test suite on the minimum and newer Python versions |
+| `lint` | `ruff check` and `ruff format --check` |
+
+The workflow uses read-only repository permissions, actions pinned to full commit SHAs, and job timeouts. CI-only tools (`coverage`, `ruff`) are installed from the hash-pinned [ci/requirements.txt](ci/requirements.txt). Dependabot proposes updates for both the actions and those tools. No deployment, external target, or real secret is needed.
+
+To run the same checks locally:
+
+```sh
+python -m pip install --require-hashes --no-deps -r ci/requirements.txt
+python -m coverage run -m unittest discover && python -m coverage report
+ruff check . && ruff format --check .
+```
 
 | Exit code | Meaning |
 |---|---|
@@ -155,13 +171,13 @@ The included [.github/workflows/accessproof.yml](.github/workflows/accessproof.y
 | `2` | Invalid configuration/baseline, invalid CLI arguments, or an output/startup error |
 | `130` | Interrupted run; incomplete |
 
-A failing workflow marks the check as failed. To block merging on GitHub, configure branch protection or a repository ruleset that requires **AccessProof / authorization**. This package provides the workflow; it does not change GitHub account settings. The workflow has not been executed on hosted GitHub runners in this environment; its Python commands have been verified locally.
+A failing workflow marks the check as failed. To block merging on GitHub, configure branch protection or a repository ruleset that requires **AccessProof / authorization**, and preferably the `lint` and `tests (Python …)` checks too. The `authorization` job intentionally has no `needs:` dependency, because GitHub treats a required check that was skipped as passing. This package provides the workflow; it does not change GitHub account settings. See [docs/validation.md](docs/validation.md) for what has run on hosted runners.
 
 ## Evaluation and limitations
 
 The repeatable walkthrough detects all four seeded unauthorized-access cases across two defect classes and raises no failures for the corrected 12-case matrix. These are small synthetic fixtures, **not** evidence of general detection accuracy. [docs/evaluation.md](docs/evaluation.md) records cases, one reproduced missed leak, ways false positives can arise, and scope limitations.
 
-Deferred: dashboards, automatic endpoint discovery, write/delete requests, AI, production authentication flows, cookies, OIDC login, query-parameter resource IDs, response arrays at the root, non-JSON APIs, remote targets, database storage, concurrent execution, and signed evidence.
+Deferred: dashboards, automatic endpoint discovery, write/delete requests, AI, production authentication flows, cookies, OIDC login, query-parameter resource IDs, response arrays at the root, non-JSON APIs, remote targets, database storage, concurrent execution, and signed evidence. [docs/roadmap.md](docs/roadmap.md) puts these in a proposed order. Changes are recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ## Learn and explain the implementation
 
