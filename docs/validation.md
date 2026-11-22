@@ -18,7 +18,7 @@ Latest local verification: **November 22, 2026**, on Windows 11 with Python 3.15
 
 ## Hosted CI
 
-The original workflow ran successfully on hosted GitHub runners for commit `b8f7661` (November 1, 2026). The Dependabot updates to `actions/checkout` 7.0.1, `actions/setup-python` 7.1.0, and `actions/upload-artifact` 7.0.2 also passed hosted CI on their own branches.
+The original workflow ran successfully on hosted GitHub runners for commit `b8f7661` (November 1, 2026). The Dependabot updates to `actions/checkout` 7.0.1, `actions/setup-python` 7.1.0, and `actions/upload-artifact` 7.0.2 also passed hosted CI on their own branches. On November 22, 2026, the original workflow passed on hosted Linux runners for the `deps/github-actions`, `chore/ruff-lint`, and `test/coverage-gaps` branches. That run included the 53-test suite with the new deadline and TLS tests.
 
 The expanded workflow (Python matrix, lint job, coverage floor, walkthrough step) has been validated locally but has **not yet run on hosted runners**. Its first hosted run will be on the pull request that introduces it. Check that run before marking the new jobs as required.
 
