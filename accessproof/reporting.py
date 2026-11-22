@@ -11,7 +11,7 @@ from pathlib import Path
 
 from . import EVALUATOR_VERSION
 from .config import ConfigError, require
-from .runner import gate_failed
+from .runner import gate_verdict
 
 
 def load_baseline(filename: str | Path) -> dict:
@@ -57,6 +57,12 @@ def load_baseline(filename: str | Path) -> dict:
 
 
 def compare(report: dict, baseline: dict) -> None:
+    """Compare against a baseline, then refresh the recorded gate verdict."""
+    _compare_checks(report, baseline)
+    report["gate"] = gate_verdict(report)
+
+
+def _compare_checks(report: dict, baseline: dict) -> None:
     previous = {result["id"]: result["status"] for result in baseline["results"]}
     current = {result["id"]: result["status"] for result in report["results"]}
     comparison = report["comparison"]
@@ -79,6 +85,32 @@ def compare(report: dict, baseline: dict) -> None:
     comparison["resolved"] = sorted(
         key for key, status in current.items() if status == "passed" and previous[key] in {"failed", "inconclusive"}
     )
+
+
+def comparison_headline(comparison: dict) -> str:
+    """Plain-language comparison outcome; the raw status stays in the JSON for tools."""
+    status = comparison["status"]
+    if status == "not_requested":
+        return "No baseline comparison requested"
+    if status == "policy_changed":
+        return "Not comparable: the policy changed since the baseline"
+    if status == "coverage_mismatch":
+        return "Not comparable: the set of checks differs from the baseline"
+    changes = [
+        f"{len(comparison[key])} {label}"
+        for key, label in (
+            ("newly_failing", "newly failing"),
+            ("newly_inconclusive", "newly inconclusive"),
+            ("resolved", "resolved"),
+        )
+        if comparison[key]
+    ]
+    return f"Compared with baseline: {', '.join(changes) if changes else 'no changes'}"
+
+
+def gate_line(gate: dict) -> str:
+    reasons = f" ({', '.join(gate['reasons'])})" if gate["reasons"] else ""
+    return f"Gate: {gate['status'].upper()}{reasons}"
 
 
 def sanitize(report: dict, secrets: list[str]) -> dict:
@@ -125,11 +157,13 @@ def terminal(report: dict) -> str:
     summary = " | ".join(
         f"{status}: {report['summary'].get(status, 0)}" for status in ("passed", "failed", "inconclusive", "skipped")
     )
-    lines.extend([summary, f"Comparison: {report['comparison']['status']}"])
+    lines.extend(
+        [summary, f"Comparison: {comparison_headline(report['comparison'])} [{report['comparison']['status']}]"]
+    )
     for name in ("newly_failing", "newly_inconclusive", "resolved", "added", "removed"):
         if report["comparison"][name]:
             lines.append(f"{name}: {', '.join(report['comparison'][name])}")
-    lines.append("Gate: BLOCKED" if gate_failed(report) else "Gate: PASSED")
+    lines.append(gate_line(report["gate"]))
     lines.append(report["limitation"])
     return "\n".join(lines)
 
@@ -167,11 +201,12 @@ def render_html(report: dict) -> str:
 <title>AccessProof — {escape(report["suite_id"])}</title>
 <style>body{{font:16px/1.55 system-ui,sans-serif;margin:0;background:#f3f6fb;color:#17263d}}main{{max-width:1500px;margin:auto;padding:32px}}h1{{margin-bottom:4px}}p{{max-width:1050px}}.card{{background:white;border:1px solid #c8d3e4;border-radius:12px;padding:20px;margin:20px 0;overflow:auto}}table{{border-collapse:collapse;width:100%;font-size:14px}}th,td{{padding:12px;text-align:left;border-bottom:1px solid #dce3ef;vertical-align:top}}th{{background:#e8eef8}}.failed td:first-child{{border-left:5px solid #b32424}}.inconclusive td:first-child{{border-left:5px solid #9a5b00}}.passed td:first-child{{border-left:5px solid #147449}}.skipped td:first-child{{border-left:5px solid #60718a}}pre{{white-space:pre-wrap;word-break:break-word;font-size:12px}}code{{word-break:break-all}}summary{{cursor:pointer}}.badge{{font-weight:700;font-size:19px}}</style></head>
 <body><main><h1>AccessProof</h1><p>Configured authorization regression testing</p>
-<section class="card"><div class="badge">{"BLOCKED" if gate_failed(report) else "PASSED"}</div>
+<section class="card"><div class="badge">{escape(report["gate"]["status"].upper())}</div>
+<p>{escape(gate_line(report["gate"]))}</p>
 <p>{escape(summary)}</p><p>Suite: {escape(report["suite_id"])} · Policy: {escape(report["policy_version"])} · Target: {escape(report["target"])} · GET only</p>
 <p>Generated: {escape(report["created_at"])}</p><p>Policy fingerprint: <code>{escape(report["policy_fingerprint"])}</code></p>
 <p>{escape(report["limitation"])}</p><p>Only declared identities, resources, and assertions were tested. Evidence excludes response bodies, header values, tokens, and expected content values. All times are UTC.</p></section>
-<section class="card"><h2>Regression comparison: {escape(report["comparison"]["status"])}</h2><pre>{comparison}</pre></section>
+<section class="card"><h2>Baseline comparison</h2><p>{escape(comparison_headline(report["comparison"]))}</p><pre>{comparison}</pre></section>
 <section class="card"><h2>Results</h2><table><thead><tr><th>Check</th><th>Identity</th><th>Resource</th><th>Expected</th><th>Observed</th><th>Gate</th><th>Evidence</th></tr></thead><tbody>{"".join(rows)}</tbody></table></section>
 </main></body></html>"""
 

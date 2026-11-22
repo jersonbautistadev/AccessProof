@@ -8,7 +8,7 @@ Items are prioritized with MoSCoW and ordered by value against effort. Effort is
 
 ## v0.2: Must
 
-**1. Clearer comparison wording in reports (S).** When the gate is blocked, the HTML and terminal reports currently say "Regression comparison: equivalent". That means "the baseline is comparable", but readers take it as "nothing changed".
+**1. Clearer comparison wording in reports (S). Done:** reports now record a `gate` verdict and show a plain-language comparison headline. See [report-format.md](report-format.md). When the gate is blocked, the HTML and terminal reports currently say "Regression comparison: equivalent". That means "the baseline is comparable", but readers take it as "nothing changed".
 - *Given* a comparable baseline with newly failing checks, *when* the report renders, *then* the heading states the regression count (for example "4 new failures against a comparable baseline") and the raw `status` value stays in the JSON unchanged.
 
 **2. JSON arrays at the root (M).** List endpoints are a common place for object-level leaks (`GET /records` returning other users' rows).

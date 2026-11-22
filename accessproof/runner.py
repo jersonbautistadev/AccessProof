@@ -147,6 +147,7 @@ def run(policy: Policy, *, environment: dict[str, str] | None = None, transport=
             "permission_checks": len(policy.resources) * len(policy.identities),
         },
         "summary": dict(Counter(result.status for result in results)),
+        "gate": None,
         "results": [asdict(result) for result in results],
         "comparison": {
             "status": "not_requested",
@@ -158,11 +159,21 @@ def run(policy: Policy, *, environment: dict[str, str] | None = None, transport=
         },
         "limitation": "Passing configured checks does not establish that an entire application is secure.",
     }
+    report["gate"] = gate_verdict(report)
     return report
 
 
-def gate_failed(report: dict) -> bool:
+def gate_verdict(report: dict) -> dict:
+    """The CI gate decision. It is recorded in the report so readers never re-derive it."""
+    reasons = []
     if report["comparison"]["status"] not in {"not_requested", "equivalent"}:
-        return True
+        reasons.append(f"comparison_{report['comparison']['status']}")
     # Required skipped checks also block: an omitted test is not evidence of a pass.
-    return any(result["required"] and result["status"] != "passed" for result in report["results"])
+    blocking = [result["id"] for result in report["results"] if result["required"] and result["status"] != "passed"]
+    if blocking:
+        reasons.append("required_checks_not_passed")
+    return {"status": "blocked" if reasons else "passed", "reasons": reasons, "blocking_checks": blocking}
+
+
+def gate_failed(report: dict) -> bool:
+    return gate_verdict(report)["status"] == "blocked"

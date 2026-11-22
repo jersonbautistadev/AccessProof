@@ -136,6 +136,8 @@ Every check is required by default. A required failed, inconclusive, **or skippe
 
 Reports contain stable check IDs, identity/resource labels, expected permission, observed outcome, HTTP status, body length, assertion-match booleans, and the names of exposed protected fields. They exclude response values, headers, credentials, tokens, raw exception messages, and expected assertion values. Responses are inspected only in memory. Exact configured credential values are redacted from user-supplied report metadata as an additional layer; HTML text is escaped and scripts are disabled. Use synthetic labels and fixtures because report metadata itself can reveal internal structure.
 
+`report.json` is a stable, versioned contract with a recorded gate verdict. [docs/report-format.md](docs/report-format.md) explains every field and reason code and the compatibility rules, and [schema/report.schema.json](schema/report.schema.json) is the JSON Schema the test suite enforces.
+
 The runner permits only literal loopback IP targets explicitly labeled `development` or `test`. It ignores proxy environment variables, refuses redirects, uses a fresh HTTP connection for every request, accepts no cookie sessions, validates TLS certificates for HTTPS, limits response size, and uses timeouts. A timeout is a socket inactivity limit plus a deadline checked between body reads, not an exact total wall-clock guarantee. GET-only does not make an application endpoint harmless: configure read-only endpoints in a disposable development environment.
 
 ## Regression tracking

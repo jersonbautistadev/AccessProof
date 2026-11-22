@@ -4,11 +4,12 @@ Latest local verification: **November 22, 2026**, on Windows 11 with Python 3.15
 
 | Verification | Result |
 |---|---|
-| `python -m unittest discover -v` | 53 tests passed on Python 3.11, 3.12, 3.13, 3.14, and 3.15, including real loopback HTTP integration; transport tests repeated 8 times without a flaky result |
+| `python -m unittest discover -v` | 63 tests passed on Python 3.11, 3.12, 3.13, and 3.14 with `jsonschema` installed (as in CI), and on 3.15 without it (5 schema tests skipped), including real loopback HTTP integration; transport tests repeated 8 times without a flaky result |
 | Branch coverage (`coverage run -m unittest discover`) | 97% of the `accessproof` package; `evaluation`, `runner`, and `transport` at 100%. CI enforces a 95% floor |
 | Fault injection on new tests | Each test added on November 22 was run against a deliberately broken implementation and failed, confirming it can detect the defect it targets |
 | `python -m scripts.walkthrough` | Expected CLI exits 1 → 0 → 1; four resolved failures, then four newly failing permissions. A forced stage failure exits 2, names the stage, and keeps its `terminal.txt` |
 | `python -m scripts.ci_demo` | Exit 0 with 18 passed checks; `--mode vulnerable` exits 1 |
+| Report contract | Generated reports, written files, and the published samples validate against `schema/report.schema.json`; injected extra fields (response bodies, headers, tokens) are rejected; every reason code a report can contain is documented |
 | Configuration and baseline validation | Negative cases reject unsupported targets, policy errors, invalid skip entries, malformed baselines, and output paths that would overwrite a baseline or the configuration |
 | Sanitized sample and generated reports | 18 result rows each; fixture tokens and private response values absent |
 | HTML report in a browser | `reports/walkthrough/regression/report.html` rendered in a Chromium-based browser: 18 rows, four rows marked "NEW FAILURE", BLOCKED badge, no scripts, no console errors |

@@ -2,7 +2,7 @@
   "report_version": 1,
   "tool_version": "0.1.0",
   "evaluator_version": 1,
-  "created_at": "2026-10-29T05:26:26.820520+00:00",
+  "created_at": "2026-11-22T09:56:10.371788+00:00",
   "suite_id": "accessproof-demo",
   "policy_version": "1",
   "policy_fingerprint": "f5c2c7fcc5b6b48a2673ab79134f5c2a4124ad467c704cd8e66d0d6220c4f393",
@@ -16,6 +16,18 @@
   "summary": {
     "passed": 14,
     "failed": 4
+  },
+  "gate": {
+    "status": "blocked",
+    "reasons": [
+      "required_checks_not_passed"
+    ],
+    "blocking_checks": [
+      "permission:admin-audit:alice",
+      "permission:admin-audit:bob",
+      "permission:alice-record:bob",
+      "permission:bob-record:alice"
+    ]
   },
   "results": [
     {

@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jersonbautistadev/AccessProof/schema/report.schema.json",
+  "title": "AccessProof report, report_version 1",
+  "description": "Contract for report.json. Strict by design: every field is listed, so the schema doubles as an allowlist of what a report may disclose. See docs/report-format.md for semantics and compatibility rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_version", "tool_version", "evaluator_version", "created_at", "suite_id", "policy_version",
+    "policy_fingerprint", "target", "scope", "summary", "results", "comparison", "limitation"
+  ],
+  "properties": {
+    "report_version": { "const": 1 },
+    "tool_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+" },
+    "evaluator_version": { "type": "integer", "minimum": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "suite_id": { "$ref": "#/$defs/identifier" },
+    "policy_version": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "policy_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "target": { "type": "string", "pattern": "^https?://" },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "configured_resources", "configured_identities", "permission_checks"],
+      "properties": {
+        "method": { "const": "GET" },
+        "configured_resources": { "type": "integer", "minimum": 1 },
+        "configured_identities": { "type": "integer", "minimum": 2 },
+        "permission_checks": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "summary": {
+      "description": "Count of results per status. Statuses with no results are omitted.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "passed": { "type": "integer", "minimum": 1 },
+        "failed": { "type": "integer", "minimum": 1 },
+        "inconclusive": { "type": "integer", "minimum": 1 },
+        "skipped": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "gate": {
+      "description": "The recorded CI gate decision. Absent only in reports written before this field existed; readers must not re-derive it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reasons", "blocking_checks"],
+      "properties": {
+        "status": { "enum": ["passed", "blocked"] },
+        "reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["required_checks_not_passed", "comparison_policy_changed", "comparison_coverage_mismatch"]
+          }
+        },
+        "blocking_checks": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/checkId" } }
+      }
+    },
+    "results": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/result" } },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "newly_failing", "newly_inconclusive", "resolved", "added", "removed"],
+      "properties": {
+        "status": { "enum": ["not_requested", "equivalent", "policy_changed", "coverage_mismatch"] },
+        "baseline_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "newly_failing": { "$ref": "#/$defs/checkIdList" },
+        "newly_inconclusive": { "$ref": "#/$defs/checkIdList" },
+        "resolved": { "$ref": "#/$defs/checkIdList" },
+        "added": { "$ref": "#/$defs/checkIdList" },
+        "removed": { "$ref": "#/$defs/checkIdList" }
+      }
+    },
+    "limitation": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "identifier": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,63}$" },
+    "fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "checkId": {
+      "type": "string",
+      "pattern": "^(?:identity|control|permission):[a-zA-Z][a-zA-Z0-9_-]{0,63}(?::[a-zA-Z][a-zA-Z0-9_-]{0,63})?$"
+    },
+    "checkIdList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/checkId" } },
+    "pointer": { "type": "string", "pattern": "^/" },
+    "assertionChecks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "matched"],
+        "properties": {
+          "kind": { "enum": ["status", "json_equals"] },
+          "pointer": { "$ref": "#/$defs/pointer" },
+          "matched": { "type": "boolean" }
+        }
+      }
+    },
+    "evidence": {
+      "description": "Allowlisted, body-free evidence. Never contains response values, headers, tokens, or expected assertion values.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "http_status": { "type": ["integer", "null"], "minimum": 100, "maximum": 599 },
+        "body_bytes": { "type": "integer", "minimum": 0 },
+        "json_object": { "type": "boolean" },
+        "transport_error": { "type": ["string", "null"], "pattern": "^[a-z_]+$" },
+        "identity_assertions": { "$ref": "#/$defs/assertionChecks" },
+        "allow_assertions": { "$ref": "#/$defs/assertionChecks" },
+        "deny_assertions": { "$ref": "#/$defs/assertionChecks" },
+        "protected_fields_present": { "type": "array", "items": { "$ref": "#/$defs/pointer" } },
+        "control_diagnostic": { "type": "string", "pattern": "^[a-z_]+$" },
+        "skip_reason": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "identity", "resource", "expected", "status", "reason", "required", "evidence"],
+      "properties": {
+        "id": { "$ref": "#/$defs/checkId" },
+        "kind": { "enum": ["identity", "control", "permission"] },
+        "identity": { "$ref": "#/$defs/identifier" },
+        "resource": { "oneOf": [{ "$ref": "#/$defs/identifier" }, { "type": "null" }] },
+        "expected": { "enum": ["verified identity", "known legitimate access", "allow", "deny", "unspecified"] },
+        "status": { "enum": ["passed", "failed", "inconclusive", "skipped"] },
+        "reason": {
+          "description": "Machine-readable reason code. Known codes are listed in docs/report-format.md; new codes may be added without a report_version change.",
+          "type": "string",
+          "pattern": "^[a-z_]+$"
+        },
+        "required": { "type": "boolean" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "identity" } } },
+          "then": { "properties": { "resource": { "type": "null" }, "expected": { "const": "verified identity" } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "control" } } },
+          "then": { "properties": { "resource": { "type": "string" }, "expected": { "const": "known legitimate access" } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "permission" } } },
+          "then": { "properties": { "resource": { "type": "string" }, "expected": { "enum": ["allow", "deny", "unspecified"] } } }
+        }
+      ]
+    }
+  }
+}
