@@ -1,22 +1,11 @@
 /// <reference types="vitest/config" />
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
+import { CONTENT_SECURITY_POLICY } from "./src/security";
 
 // The viewer renders untrusted report files, so the built page allows only its own
 // scripts, styles, and fonts, and cannot make network requests or submit forms.
 // Applied to production builds only: the dev server needs inline scripts for HMR.
-const CONTENT_SECURITY_POLICY = [
-  "default-src 'none'",
-  "script-src 'self'",
-  "style-src 'self'",
-  "font-src 'self'",
-  "img-src 'self'",
-  "connect-src 'none'",
-  "object-src 'none'",
-  "base-uri 'none'",
-  "form-action 'none'",
-].join("; ");
-
 function contentSecurityPolicy(): Plugin {
   return {
     name: "accessproof-content-security-policy",
