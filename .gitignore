@@ -10,3 +10,7 @@ build/
 dist/
 .coverage
 .pytest_cache/
+# Report viewer
+web/node_modules/
+web/dist/
+web/src/generated/
