@@ -4,3 +4,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+  # Hash-pinned CI-only tools (coverage, ruff); the package itself has no dependencies.
+  - package-ecosystem: pip
+    directory: /ci
+    schedule:
+      interval: monthly

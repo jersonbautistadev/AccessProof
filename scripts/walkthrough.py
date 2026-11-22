@@ -19,9 +19,11 @@ def stage(mode, name, expected_exit, baseline=None):
     print(completed.stdout, end="", flush=True)
     if completed.stderr:
         print(completed.stderr, end="", file=sys.stderr)
+    # Keep the terminal output even when the stage misbehaves; it is the first thing to inspect.
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "terminal.txt").write_text(completed.stdout + completed.stderr, encoding="utf-8")
     if completed.returncode != expected_exit:
-        raise RuntimeError("walkthrough did not produce its expected CLI result")
-    (directory / "terminal.txt").write_text(completed.stdout, encoding="utf-8")
+        raise RuntimeError(f"{name} stage exited {completed.returncode}, expected {expected_exit}")
     return json.loads((directory / "report.json").read_text(encoding="utf-8"))
 
 
@@ -61,7 +63,11 @@ def main():
             "\nWalkthrough verified. Open reports/walkthrough/regression/report.html to inspect newly failing permissions."
         )
         return 0
-    except (OSError, ValueError, RuntimeError):
+    except RuntimeError as exc:
+        # These messages are the walkthrough's own constants and stage names, never response data.
+        print(f"Walkthrough failed: {exc}. See reports/walkthrough/*/terminal.txt", file=sys.stderr)
+        return 2
+    except (OSError, ValueError):
         print(
             "Walkthrough could not complete; inspect the visible results and ensure local port 8765 is free",
             file=sys.stderr,

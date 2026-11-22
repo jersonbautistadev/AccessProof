@@ -27,3 +27,11 @@ ignore = ["E501", "RUF001"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["accessproof", "scripts", "tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["accessproof"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
