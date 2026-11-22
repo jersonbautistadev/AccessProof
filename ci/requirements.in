@@ -1,3 +1,8 @@
+# CI-only tools. Compile with:
+#   uv pip compile ci/requirements.in --generate-hashes --universal --python-version 3.11 --no-header -o ci/requirements.txt
 coverage==7.17.4
-jsonschema==4.25.1
+jsonschema==4.26.0
 ruff==0.17.6
+# referencing (a jsonschema dependency) needs typing-extensions on Python < 3.13, and CI
+# runs 3.12. Listed directly so a lock regenerated on a newer Python cannot drop it.
+typing-extensions==4.16.0

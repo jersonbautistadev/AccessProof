@@ -1,19 +1,27 @@
 version: 2
+# cooldown: propose only releases at least 14 days old, so a compromised or broken
+# release has time to be noticed before it reaches CI or a developer's machine.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
-  # Hash-pinned CI-only tools (coverage, ruff); the package itself has no dependencies.
+    cooldown:
+      default-days: 14
+  # Hash-pinned CI-only tools (coverage, jsonschema, ruff); the package itself has no dependencies.
   - package-ecosystem: pip
     directory: /ci
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 14
   # Report viewer (web/). Grouped so routine updates arrive as one pull request.
   - package-ecosystem: npm
     directory: /web
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 14
     groups:
       viewer:
         patterns: ["*"]
