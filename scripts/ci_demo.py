@@ -13,8 +13,11 @@ def main():
     arguments = parser.parse_args()
     try:
         with local_demo(arguments.mode):
-            result = subprocess.run([sys.executable, "-m", "accessproof", "run", "configs/demo.toml", "--out", "reports/ci"],
-                                    env=demo_environment(), check=False)
+            result = subprocess.run(
+                [sys.executable, "-m", "accessproof", "run", "configs/demo.toml", "--out", "reports/ci"],
+                env=demo_environment(),
+                check=False,
+            )
         return result.returncode
     except OSError:
         print("CI demo could not start; ensure local port 8765 is free", file=sys.stderr)

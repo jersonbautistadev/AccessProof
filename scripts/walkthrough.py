@@ -1,9 +1,9 @@
 """Detect, correct, rerun, and reintroduce two known authorization defects."""
 
 import json
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 from .demo_support import demo_environment, local_demo
 
@@ -30,8 +30,12 @@ def main():
         vulnerable = stage("vulnerable", "vulnerable", 1)
         fixed = stage("fixed", "fixed", 0, Path("reports/walkthrough/vulnerable/report.json"))
         regression = stage("vulnerable", "regression", 1, Path("reports/walkthrough/fixed/report.json"))
-        expected_bugs = {"permission:alice-record:bob", "permission:bob-record:alice",
-                         "permission:admin-audit:alice", "permission:admin-audit:bob"}
+        expected_bugs = {
+            "permission:alice-record:bob",
+            "permission:bob-record:alice",
+            "permission:admin-audit:alice",
+            "permission:admin-audit:bob",
+        }
         detected = {row["id"] for row in vulnerable["results"] if row["status"] == "failed"}
         valid_rows = [row for row in fixed["results"] if row["kind"] == "permission"]
         if detected != expected_bugs or any(row["status"] != "passed" for row in valid_rows):
@@ -53,10 +57,15 @@ def main():
         }
         destination = Path("reports/walkthrough/evaluation.json")
         destination.write_text(json.dumps(evaluation, indent=2) + "\n", encoding="utf-8")
-        print("\nWalkthrough verified. Open reports/walkthrough/regression/report.html to inspect newly failing permissions.")
+        print(
+            "\nWalkthrough verified. Open reports/walkthrough/regression/report.html to inspect newly failing permissions."
+        )
         return 0
     except (OSError, ValueError, RuntimeError):
-        print("Walkthrough could not complete; inspect the visible results and ensure local port 8765 is free", file=sys.stderr)
+        print(
+            "Walkthrough could not complete; inspect the visible results and ensure local port 8765 is free",
+            file=sys.stderr,
+        )
         return 2
 
 

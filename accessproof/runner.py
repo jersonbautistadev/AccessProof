@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import os
 from collections import Counter
 from dataclasses import asdict
-from datetime import datetime, timezone
-import os
+from datetime import UTC, datetime
 
 from . import EVALUATOR_VERSION, __version__
 from .config import Policy
@@ -55,8 +55,18 @@ def run(policy: Policy, *, environment: dict[str, str] | None = None, transport=
         else:
             passed = False
         identity_ready[identity.id] = passed
-        results.append(Result(f"identity:{identity.id}", "identity", identity.id, None, "verified identity",
-                              "passed" if passed else "inconclusive", reason, evidence=evidence))
+        results.append(
+            Result(
+                f"identity:{identity.id}",
+                "identity",
+                identity.id,
+                None,
+                "verified identity",
+                "passed" if passed else "inconclusive",
+                reason,
+                evidence=evidence,
+            )
+        )
 
     controls = {}
     for resource in policy.resources:
@@ -71,8 +81,17 @@ def run(policy: Policy, *, environment: dict[str, str] | None = None, transport=
             if status != "passed":
                 evidence["control_diagnostic"] = reason
                 status, reason = "inconclusive", "positive_control_not_verified"
-        control = Result(f"control:{resource.id}", "control", actor, resource.id, "known legitimate access",
-                         status, reason, resource.required, evidence)
+        control = Result(
+            f"control:{resource.id}",
+            "control",
+            actor,
+            resource.id,
+            "known legitimate access",
+            status,
+            reason,
+            resource.required,
+            evidence,
+        )
         results.append(control)
         controls[resource.id] = (control, observation)
 
@@ -92,25 +111,51 @@ def run(policy: Policy, *, environment: dict[str, str] | None = None, transport=
                 status, reason = "inconclusive", "positive_control_not_verified"
             else:
                 # Reuse this actor's just-verified positive response; no artificial duplicate request.
-                observation = positive_observation if identity.id == resource.positive_identity else transport.get(resource.path, tokens[identity.id])
+                observation = (
+                    positive_observation
+                    if identity.id == resource.positive_identity
+                    else transport.get(resource.path, tokens[identity.id])
+                )
                 status, reason, evidence = evaluate(observation, resource, expected, identity.anonymous)
-            results.append(Result(f"permission:{resource.id}:{identity.id}", "permission", identity.id,
-                                  resource.id, expected, status, reason, resource.required, evidence))
+            results.append(
+                Result(
+                    f"permission:{resource.id}:{identity.id}",
+                    "permission",
+                    identity.id,
+                    resource.id,
+                    expected,
+                    status,
+                    reason,
+                    resource.required,
+                    evidence,
+                )
+            )
 
     report = {
         "report_version": 1,
         "tool_version": __version__,
         "evaluator_version": EVALUATOR_VERSION,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "suite_id": policy.suite_id,
         "policy_version": policy.policy_version,
         "policy_fingerprint": policy.fingerprint,
         "target": policy.target.base_url,
-        "scope": {"method": "GET", "configured_resources": len(policy.resources),
-                  "configured_identities": len(policy.identities), "permission_checks": len(policy.resources) * len(policy.identities)},
+        "scope": {
+            "method": "GET",
+            "configured_resources": len(policy.resources),
+            "configured_identities": len(policy.identities),
+            "permission_checks": len(policy.resources) * len(policy.identities),
+        },
         "summary": dict(Counter(result.status for result in results)),
         "results": [asdict(result) for result in results],
-        "comparison": {"status": "not_requested", "newly_failing": [], "newly_inconclusive": [], "resolved": [], "added": [], "removed": []},
+        "comparison": {
+            "status": "not_requested",
+            "newly_failing": [],
+            "newly_inconclusive": [],
+            "resolved": [],
+            "added": [],
+            "removed": [],
+        },
         "limitation": "Passing configured checks does not establish that an entire application is secure.",
     }
     return report

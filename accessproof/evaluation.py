@@ -18,7 +18,12 @@ def lookup(body: object, pointer: str) -> object:
         part = part.replace("~1", "/").replace("~0", "~")
         if isinstance(current, dict) and part in current:
             current = current[part]
-        elif isinstance(current, list) and part.isascii() and part.isdigit() and (part == "0" or not part.startswith("0")):
+        elif (
+            isinstance(current, list)
+            and part.isascii()
+            and part.isdigit()
+            and (part == "0" or not part.startswith("0"))
+        ):
             index = int(part)
             if index >= len(current):
                 return MISSING
@@ -43,8 +48,13 @@ def assertion_evidence(observation: Observation, assertion: Assertion) -> list[d
     checks = [{"kind": "status", "matched": observation.status in assertion.statuses}]
     for pointer, expected in assertion.json_equals.items():
         actual = lookup(observation.body, pointer)
-        checks.append({"kind": "json_equals", "pointer": pointer,
-                       "matched": actual is not MISSING and type(actual) is type(expected) and actual == expected})
+        checks.append(
+            {
+                "kind": "json_equals",
+                "pointer": pointer,
+                "matched": actual is not MISSING and type(actual) is type(expected) and actual == expected,
+            }
+        )
     return checks
 
 

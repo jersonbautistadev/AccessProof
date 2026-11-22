@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import hmac
 import json
 import os
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from .config import require
 
-TOKEN_VARIABLES = {"alice": "ACCESSPROOF_ALICE_TOKEN", "bob": "ACCESSPROOF_BOB_TOKEN", "admin": "ACCESSPROOF_ADMIN_TOKEN"}
+TOKEN_VARIABLES = {
+    "alice": "ACCESSPROOF_ALICE_TOKEN",
+    "bob": "ACCESSPROOF_BOB_TOKEN",
+    "admin": "ACCESSPROOF_ADMIN_TOKEN",
+}
 RECORDS = {
     "record-alice": {"id": "record-alice", "owner": "alice", "private_note": "SYNTHETIC_ALICE_PRIVATE_NOTE"},
     "record-bob": {"id": "record-bob", "owner": "bob", "private_note": "SYNTHETIC_BOB_PRIVATE_NOTE"},
@@ -21,9 +25,13 @@ def make_server(*, port: int = 8765, mode: str = "fixed", tokens: dict[str, str]
     require(mode in {"fixed", "vulnerable"}, "demo: mode must be fixed or vulnerable")
     require(type(port) is int and 0 <= port <= 65535, "demo: invalid port")
     require(set(tokens) == set(TOKEN_VARIABLES), "demo: provide all three synthetic identities")
-    require(all(isinstance(token, str) and 16 <= len(token) <= 4096
-                and all(33 <= ord(char) <= 126 for char in token) for token in tokens.values()),
-            "demo: set all three token environment variables to distinct ASCII strings of 16–4096 characters")
+    require(
+        all(
+            isinstance(token, str) and 16 <= len(token) <= 4096 and all(33 <= ord(char) <= 126 for char in token)
+            for token in tokens.values()
+        ),
+        "demo: set all three token environment variables to distinct ASCII strings of 16–4096 characters",
+    )
     require(len(set(tokens.values())) == 3, "demo: tokens must be distinct")
 
     class Handler(BaseHTTPRequestHandler):

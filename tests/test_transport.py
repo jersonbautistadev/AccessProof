@@ -1,9 +1,9 @@
-from contextlib import contextmanager
-from dataclasses import replace
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import threading
 import time
 import unittest
+from contextlib import contextmanager
+from dataclasses import replace
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import patch
 
 from accessproof.config import ConfigError
@@ -62,7 +62,9 @@ def response_server():
     server.daemon_threads = True
     thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.02}, daemon=True)
     thread.start()
-    configured = replace(policy().target, base_url=f"http://127.0.0.1:{server.server_port}", timeout_seconds=1, max_response_bytes=1024)
+    configured = replace(
+        policy().target, base_url=f"http://127.0.0.1:{server.server_port}", timeout_seconds=1, max_response_bytes=1024
+    )
     try:
         yield GetTransport(configured), calls
     finally:
@@ -80,14 +82,32 @@ class TransportTests(unittest.TestCase):
             self.assertTrue(all(call["cookie"] is None for call in calls))
 
     def test_proxy_environment_is_not_used(self):
-        with response_server() as (transport, _), patch.dict("os.environ", {"HTTP_PROXY": "http://127.0.0.1:1", "HTTPS_PROXY": "http://127.0.0.1:1", "ALL_PROXY": "http://127.0.0.1:1", "NO_PROXY": ""}):
+        with (
+            response_server() as (transport, _),
+            patch.dict(
+                "os.environ",
+                {
+                    "HTTP_PROXY": "http://127.0.0.1:1",
+                    "HTTPS_PROXY": "http://127.0.0.1:1",
+                    "ALL_PROXY": "http://127.0.0.1:1",
+                    "NO_PROXY": "",
+                },
+            ),
+        ):
             self.assertEqual(transport.get("/ok", None).body, {"ok": True})
 
     def test_response_limits_and_unsupported_content_fail_inconclusively(self):
         with response_server() as (transport, _):
-            for endpoint, expected in (("/huge", "response_too_large"), ("/duplicate", "invalid_json"), ("/invalid", "invalid_json"),
-                                       ("/nonstandard", "invalid_json"), ("/array", "json_object_required"), ("/html", "non_json_response"),
-                                       ("/gzip", "encoded_response_unsupported"), ("/truncated", "truncated_response")):
+            for endpoint, expected in (
+                ("/huge", "response_too_large"),
+                ("/duplicate", "invalid_json"),
+                ("/invalid", "invalid_json"),
+                ("/nonstandard", "invalid_json"),
+                ("/array", "json_object_required"),
+                ("/html", "non_json_response"),
+                ("/gzip", "encoded_response_unsupported"),
+                ("/truncated", "truncated_response"),
+            ):
                 with self.subTest(endpoint=endpoint):
                     self.assertEqual(transport.get(endpoint, None).error, expected)
 

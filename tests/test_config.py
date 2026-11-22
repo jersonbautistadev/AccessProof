@@ -31,15 +31,38 @@ class ConfigurationTests(unittest.TestCase):
                 self.assertNotEqual(original, parse_policy(raw).fingerprint)
 
     def test_rejects_nonlocal_or_ambiguous_targets(self):
-        for url in ("https://example.com", "http://10.0.0.1", "http://localhost:8765", "http://127.0.0.1@evil.example",
-                    "http://token@127.0.0.1", "ftp://127.0.0.1", "http://127.0.0.1/path", "http://127.0.0.1?secret=x",
-                    "http://127.0.0.1:0", "http://127.0.0.1:70000", "http://[::1%25eth0]", "http://127.0.0.1/#"):
+        for url in (
+            "https://example.com",
+            "http://10.0.0.1",
+            "http://localhost:8765",
+            "http://127.0.0.1@evil.example",
+            "http://token@127.0.0.1",
+            "ftp://127.0.0.1",
+            "http://127.0.0.1/path",
+            "http://127.0.0.1?secret=x",
+            "http://127.0.0.1:0",
+            "http://127.0.0.1:70000",
+            "http://[::1%25eth0]",
+            "http://127.0.0.1/#",
+        ):
             with self.subTest(url=url), self.assertRaises(ConfigError):
                 target({"base_url": url, "environment": "development"})
-        self.assertEqual(target({"base_url": "https://[::1]:1234/", "environment": "test"}).address, ("::1", 1234, "https"))
+        self.assertEqual(
+            target({"base_url": "https://[::1]:1234/", "environment": "test"}).address, ("::1", 1234, "https")
+        )
 
     def test_rejects_redirect_style_paths_and_query_secrets(self):
-        for endpoint in ("https://evil.example", "//127.0.0.1/", "/../admin", "/a/./b", "/a%2fb", "/a?token=x", "/a#b", "/a\\b", "/a\r\nX-Test:x"):
+        for endpoint in (
+            "https://evil.example",
+            "//127.0.0.1/",
+            "/../admin",
+            "/a/./b",
+            "/a%2fb",
+            "/a?token=x",
+            "/a#b",
+            "/a\\b",
+            "/a\r\nX-Test:x",
+        ):
             with self.subTest(endpoint=endpoint), self.assertRaises(ConfigError):
                 path(endpoint)
 

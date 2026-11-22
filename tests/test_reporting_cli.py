@@ -1,18 +1,18 @@
 import contextlib
 import copy
-from dataclasses import replace
 import io
 import json
-from pathlib import Path
 import tempfile
 import unittest
+from dataclasses import replace
+from pathlib import Path
 from unittest.mock import patch
 
 from accessproof.__main__ import main
 from accessproof.config import ConfigError
 from accessproof.reporting import compare, load_baseline, render_html, sanitize, terminal, write_reports
 from accessproof.runner import gate_failed, run
-from tests.support import ENVIRONMENT, FixtureTransport, ROOT, TOKENS, policy, running_demo
+from tests.support import ENVIRONMENT, ROOT, TOKENS, FixtureTransport, policy, running_demo
 
 
 class ReportingTests(unittest.TestCase):
@@ -59,12 +59,21 @@ class ReportingTests(unittest.TestCase):
             write_reports(safe, directory)
             for filename in ("report.json", "report.html"):
                 text = (Path(directory) / filename).read_text()
-                for secret in [*TOKENS.values(), "SYNTHETIC_ALICE_PRIVATE_NOTE", "SYNTHETIC_BOB_PRIVATE_NOTE", "synthetic-login"]:
+                for secret in [
+                    *TOKENS.values(),
+                    "SYNTHETIC_ALICE_PRIVATE_NOTE",
+                    "SYNTHETIC_BOB_PRIVATE_NOTE",
+                    "synthetic-login",
+                ]:
                     self.assertNotIn(secret, text)
-            self.assertEqual(load_baseline(Path(directory) / "report.json")["policy_fingerprint"], self.clean["policy_fingerprint"])
+            self.assertEqual(
+                load_baseline(Path(directory) / "report.json")["policy_fingerprint"], self.clean["policy_fingerprint"]
+            )
 
     def test_html_escapes_metadata_and_redacts_literal_secrets(self):
-        self.clean["results"][0]["evidence"]["skip_reason"] = '<script>alert("x")</script> ' + TOKENS["alice"] + "\x1b[31m"
+        self.clean["results"][0]["evidence"]["skip_reason"] = (
+            '<script>alert("x")</script> ' + TOKENS["alice"] + "\x1b[31m"
+        )
         safe = sanitize(self.clean, list(TOKENS.values()))
         html = render_html(safe)
         self.assertNotIn("<script>", html)
@@ -99,7 +108,11 @@ class ReportingTests(unittest.TestCase):
 class CliTests(unittest.TestCase):
     def invoke(self, arguments, environment=ENVIRONMENT):
         output, error = io.StringIO(), io.StringIO()
-        with patch.dict("os.environ", environment, clear=True), contextlib.redirect_stdout(output), contextlib.redirect_stderr(error):
+        with (
+            patch.dict("os.environ", environment, clear=True),
+            contextlib.redirect_stdout(output),
+            contextlib.redirect_stderr(error),
+        ):
             code = main(arguments)
         return code, output.getvalue(), error.getvalue()
 
@@ -112,7 +125,9 @@ class CliTests(unittest.TestCase):
     def test_cli_fixed_exit_zero_and_vulnerable_exit_one(self):
         for mode, expected in (("fixed", 0), ("vulnerable", 1)):
             with self.subTest(mode=mode), running_demo(mode) as configured, tempfile.TemporaryDirectory() as directory:
-                code, output, error = self.invoke(["run", self.local_config(directory, configured), "--out", str(Path(directory) / "reports")])
+                code, output, error = self.invoke(
+                    ["run", self.local_config(directory, configured), "--out", str(Path(directory) / "reports")]
+                )
                 self.assertEqual(code, expected, error)
                 self.assertEqual(error, "")
                 for token in TOKENS.values():
@@ -121,7 +136,9 @@ class CliTests(unittest.TestCase):
 
     def test_cli_missing_credentials_exit_one_with_report(self):
         with tempfile.TemporaryDirectory() as directory:
-            code, output, error = self.invoke(["run", str(ROOT / "configs/demo.toml"), "--out", directory], environment={})
+            code, output, _error = self.invoke(
+                ["run", str(ROOT / "configs/demo.toml"), "--out", directory], environment={}
+            )
             self.assertEqual(code, 1)
             self.assertIn("credential_missing", output)
             self.assertTrue((Path(directory) / "report.json").exists())
@@ -137,7 +154,9 @@ class CliTests(unittest.TestCase):
             write_reports(report, directory)
             filename = Path(directory) / "report.json"
             original = filename.read_bytes()
-            code, _, _ = self.invoke(["run", str(ROOT / "configs/demo.toml"), "--baseline", str(filename), "--out", directory])
+            code, _, _ = self.invoke(
+                ["run", str(ROOT / "configs/demo.toml"), "--baseline", str(filename), "--out", directory]
+            )
             self.assertEqual(code, 2)
             self.assertEqual(filename.read_bytes(), original)
 
@@ -147,7 +166,9 @@ class CliTests(unittest.TestCase):
             filename = Path(directory) / "report.html"
             original = json.dumps(report).encode()
             filename.write_bytes(original)
-            code, _, _ = self.invoke(["run", str(ROOT / "configs/demo.toml"), "--baseline", str(filename), "--out", directory])
+            code, _, _ = self.invoke(
+                ["run", str(ROOT / "configs/demo.toml"), "--baseline", str(filename), "--out", directory]
+            )
             self.assertEqual(code, 2)
             self.assertEqual(filename.read_bytes(), original)
 
