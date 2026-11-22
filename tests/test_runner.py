@@ -3,7 +3,7 @@ import unittest
 from dataclasses import replace
 
 from accessproof.config import Assertion
-from accessproof.evaluation import MISSING, lookup, matches
+from accessproof.evaluation import MISSING, evaluate, lookup, matches
 from accessproof.runner import gate_failed, run
 from accessproof.transport import Observation
 from tests.support import ENVIRONMENT, TOKENS, FixtureTransport, observed, policy, running_demo
@@ -74,10 +74,13 @@ class RunnerTests(unittest.TestCase):
 
     def test_wrong_subject_or_role_cannot_pass_identity_verification(self):
         for body in ({"subject": "bob", "role": "user"}, {"subject": "alice", "role": "admin"}):
-            report = self.run_fixture(
-                lambda path, subject, body=body: observed(200, body) if path == "/me" and subject == "alice" else None
-            )
-            self.assertEqual(self.result(report, "identity:alice")["status"], "inconclusive")
+            with self.subTest(body=body):
+                report = self.run_fixture(
+                    lambda path, subject, body=body: (
+                        observed(200, body) if path == "/me" and subject == "alice" else None
+                    )
+                )
+                self.assertEqual(self.result(report, "identity:alice")["status"], "inconclusive")
 
     def test_an_all_denied_application_is_not_a_clean_run(self):
         report = self.run_fixture(
@@ -119,12 +122,13 @@ class RunnerTests(unittest.TestCase):
 
     def test_200_is_not_automatically_access(self):
         for body in ({"message": "please log in"}, {"id": "wrong-record"}, {"error": "access_denied"}):
-            report = self.run_fixture(
-                lambda path, subject, body=body: (
-                    observed(200, body) if path == "/records/record-bob" and subject == "alice" else None
+            with self.subTest(body=body):
+                report = self.run_fixture(
+                    lambda path, subject, body=body: (
+                        observed(200, body) if path == "/records/record-bob" and subject == "alice" else None
+                    )
                 )
-            )
-            self.assertEqual(self.result(report, "permission:bob-record:alice")["status"], "inconclusive")
+                self.assertEqual(self.result(report, "permission:bob-record:alice")["status"], "inconclusive")
 
     def test_200_denial_can_be_explicitly_configured(self):
         configured = policy()
@@ -152,6 +156,43 @@ class RunnerTests(unittest.TestCase):
         )
         self.assertEqual(self.result(report, "permission:bob-record:admin")["status"], "failed")
 
+    def test_leak_without_protected_fields_is_still_unexpected_access(self):
+        # A BOLA leak can return the record's identifying fields without the configured protected field.
+        # Matching the allow contract on a denied identity must fail, not pass as "nothing exposed".
+        report = self.run_fixture(
+            lambda path, subject: (
+                observed(200, {"id": "record-bob", "owner": "bob"})
+                if path == "/records/record-bob" and subject == "alice"
+                else None
+            )
+        )
+        row = self.result(report, "permission:bob-record:alice")
+        self.assertEqual((row["status"], row["reason"]), ("failed", "unexpected_access_verified"))
+        self.assertEqual(row["evidence"]["protected_fields_present"], [])
+        self.assertTrue(gate_failed(report))
+
+    def test_overlapping_allow_and_deny_contracts_are_inconclusive(self):
+        configured = policy()
+        resource = next(item for item in configured.resources if item.id == "bob-record")
+        overlapping = replace(resource, deny=Assertion((200, 403), resource.allow.json_equals))
+        leak = observed(200, {"id": "record-bob", "owner": "bob"})
+        for expected in ("allow", "deny"):
+            with self.subTest(expected=expected):
+                self.assertEqual(
+                    evaluate(leak, overlapping, expected, False)[:2], ("inconclusive", "ambiguous_assertions")
+                )
+        # End to end, the ambiguity surfaces on the positive control and blocks the whole resource.
+        report = self.run_fixture(
+            configured=replace(
+                configured,
+                resources=tuple(overlapping if item.id == resource.id else item for item in configured.resources),
+            )
+        )
+        control = self.result(report, "control:bob-record")
+        self.assertEqual((control["status"], control["reason"]), ("inconclusive", "positive_control_not_verified"))
+        self.assertEqual(control["evidence"]["control_diagnostic"], "ambiguous_assertions")
+        self.assertTrue(gate_failed(report))
+
     def test_network_errors_never_pass(self):
         report = self.run_fixture(lambda path, subject: Observation(error="network_error"))
         self.assertEqual(report["summary"], {"inconclusive": 18})
@@ -163,32 +204,34 @@ class RunnerTests(unittest.TestCase):
             Observation(status=200, error="non_json_response"),
             Observation(error="network_timeout"),
         ):
-            report = self.run_fixture(
-                lambda path, subject, observation=observation: (
-                    observation if path == "/admin/audit" and subject == "alice" else None
+            with self.subTest(observation=observation):
+                report = self.run_fixture(
+                    lambda path, subject, observation=observation: (
+                        observation if path == "/admin/audit" and subject == "alice" else None
+                    )
                 )
-            )
-            self.assertEqual(self.result(report, "permission:admin-audit:alice")["status"], "inconclusive")
+                self.assertEqual(self.result(report, "permission:admin-audit:alice")["status"], "inconclusive")
 
     def test_unconfigured_and_explicitly_skipped_checks_block_required_scope(self):
         configured = policy()
         resource = next(item for item in configured.resources if item.id == "bob-record")
         permissions = {key: value for key, value in resource.permissions.items() if key != "alice"}
         for skipped in ({}, {"alice": "fixture temporarily unavailable"}):
-            changed = replace(resource, permissions=permissions, skip=skipped)
-            new_policy = replace(
-                configured,
-                resources=tuple(changed if item.id == resource.id else item for item in configured.resources),
-            )
-            report = self.run_fixture(configured=new_policy)
-            self.assertEqual(self.result(report, "permission:bob-record:alice")["status"], "skipped")
-            self.assertTrue(gate_failed(report))
-            optional = replace(changed, required=False)
-            optional_policy = replace(
-                new_policy,
-                resources=tuple(optional if item.id == resource.id else item for item in new_policy.resources),
-            )
-            self.assertFalse(gate_failed(self.run_fixture(configured=optional_policy)))
+            with self.subTest(skipped=skipped):
+                changed = replace(resource, permissions=permissions, skip=skipped)
+                new_policy = replace(
+                    configured,
+                    resources=tuple(changed if item.id == resource.id else item for item in configured.resources),
+                )
+                report = self.run_fixture(configured=new_policy)
+                self.assertEqual(self.result(report, "permission:bob-record:alice")["status"], "skipped")
+                self.assertTrue(gate_failed(report))
+                optional = replace(changed, required=False)
+                optional_policy = replace(
+                    new_policy,
+                    resources=tuple(optional if item.id == resource.id else item for item in new_policy.resources),
+                )
+                self.assertFalse(gate_failed(self.run_fixture(configured=optional_policy)))
 
     def test_json_pointer_escaping_arrays_and_type_strictness(self):
         self.assertEqual(lookup({"a/b": {"~key": ["first"]}}, "/a~1b/~0key/0"), "first")

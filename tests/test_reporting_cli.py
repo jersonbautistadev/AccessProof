@@ -53,6 +53,23 @@ class ReportingTests(unittest.TestCase):
         self.assertIn(removed["id"], self.clean["comparison"]["added"])
         self.assertTrue(gate_failed(self.clean))
 
+    def test_html_and_terminal_surface_regressions_and_coverage_changes(self):
+        regression = copy.deepcopy(self.clean)
+        target = next(row for row in regression["results"] if row["id"] == "permission:bob-record:alice")
+        target["status"], target["reason"] = "failed", "unexpected_access_verified"
+        compare(regression, self.clean)
+        page = render_html(sanitize(regression, []))
+        self.assertIn("NEW FAILURE: failed", page)
+        self.assertEqual(page.count("NEW FAILURE"), 1)
+        self.assertIn("newly_failing: permission:bob-record:alice", terminal(regression))
+        baseline = copy.deepcopy(self.clean)
+        removed = baseline["results"].pop()
+        current = copy.deepcopy(self.clean)
+        compare(current, baseline)
+        output = terminal(current)
+        self.assertIn(f"added: {removed['id']}", output)
+        self.assertIn("Gate: BLOCKED", output)
+
     def test_reports_never_contain_response_values_or_credentials(self):
         with tempfile.TemporaryDirectory() as directory:
             safe = sanitize(self.clean, list(TOKENS.values()))
@@ -177,3 +194,29 @@ class CliTests(unittest.TestCase):
             code, _, error = self.invoke(["run", str(ROOT / "configs/demo.toml")], environment={})
         self.assertEqual(code, 2)
         self.assertNotIn("DO_NOT_PRINT_THIS", error)
+
+    def test_demo_subcommand_dispatches_to_loopback_server(self):
+        with patch("accessproof.__main__.serve") as serve:
+            code, _, _ = self.invoke(["demo", "--mode", "vulnerable", "--port", "0"])
+        self.assertEqual(code, 0)
+        serve.assert_called_once_with(0, "vulnerable")
+
+    def test_output_must_not_overwrite_configuration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "report.json"
+            config.write_text((ROOT / "configs/demo.toml").read_text(), encoding="utf-8")
+            original = config.read_text(encoding="utf-8")
+            code, _, error = self.invoke(["run", str(config), "--out", directory])
+            self.assertEqual(code, 2)
+            self.assertIn("must not overwrite the configuration", error)
+            self.assertEqual(config.read_text(encoding="utf-8"), original)
+
+    def test_interrupted_run_exits_130_without_writing_reports(self):
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch("accessproof.__main__.run", side_effect=KeyboardInterrupt),
+        ):
+            code, _, error = self.invoke(["run", str(ROOT / "configs/demo.toml"), "--out", directory])
+            self.assertEqual(code, 130)
+            self.assertIn("run incomplete", error)
+            self.assertEqual(list(Path(directory).iterdir()), [])

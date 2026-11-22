@@ -95,6 +95,25 @@ class ConfigurationTests(unittest.TestCase):
                     parse_policy(raw)
                 self.assertNotIn("SHOULD_NOT_ECHO_THIS_VALUE", str(captured.exception))
 
+    def test_skip_entries_are_validated(self):
+        valid = copy.deepcopy(self.raw)
+        resource = valid["resources"][0]
+        resource["permissions"].pop("anonymous")
+        resource["skip"] = {"anonymous": "anonymous fixture not provisioned yet"}
+        parsed = next(item for item in parse_policy(valid).resources if item.id == resource["id"])
+        self.assertEqual(parsed.skip, {"anonymous": "anonymous fixture not provisioned yet"})
+        self.assertNotIn("anonymous", parsed.permissions)
+        for skip in ({"anonymous": ""}, {"anonymous": "bad\nreason"}, {"anonymous": 5}, {"unknown": "reason"}):
+            with self.subTest(skip=skip):
+                raw = copy.deepcopy(valid)
+                raw["resources"][0]["skip"] = skip
+                with self.assertRaises(ConfigError):
+                    parse_policy(raw)
+        conflicting = copy.deepcopy(valid)
+        conflicting["resources"][0]["permissions"]["anonymous"] = "deny"
+        with self.assertRaises(ConfigError):
+            parse_policy(conflicting)
+
     def test_missing_config_is_actionable(self):
         with self.assertRaises(ConfigError):
             load_policy(ROOT / "does-not-exist.toml")
